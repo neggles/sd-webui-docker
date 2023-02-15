@@ -15,8 +15,6 @@ x-base_service: &base_service
                 device_ids: ['0']
                 capabilities: [gpu]
 
-name: webui-docker
-
 services:
   download:
     build: ./services/download/
