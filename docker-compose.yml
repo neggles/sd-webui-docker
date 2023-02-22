@@ -1,0 +1,51 @@
+services:
+  auto:
+    image: sd-auto:44
+    build:
+      context: ./services/AUTOMATIC1111
+      dockerfile: Dockerfile
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities:
+                - gpu
+              driver: nvidia
+              device_ids:
+                - "0"
+    environment:
+      CLI_ARGS: --allow-code --xformers --enable-insecure-extension-access --api
+    command:
+      - "python"
+      - "-u"
+      - "webui.py"
+      - "--listen"
+      - "--port"
+      -  "7860"
+      - "--allow-code"
+      - "--xformers"
+      - "--enable-insecure-extension-access"
+      - "--api"
+      - "--no-half"
+      - "--precision"
+      - "full"
+    ports:
+      - mode: ingress
+        target: 7860
+        published: 7860
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: ./data
+        target: /data
+        bind:
+          create_host_path: true
+      - type: bind
+        source: ./output
+        target: /output
+        bind:
+          create_host_path: true
+
+networks:
+  default:
+    name: sd-webui

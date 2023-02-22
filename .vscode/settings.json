@@ -1,0 +1,16 @@
+{
+  "python.analysis.diagnosticMode": "openFilesOnly",
+  "python.linting.enabled": false,
+  "[python]": {
+    "editor.tabSize": 4,
+    "editor.detectIndentation": false
+  },
+  "[yaml]": {
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+    "editor.formatOnSave": true,
+    "editor.formatOnSaveMode": "file",
+    "diffEditor.ignoreTrimWhitespace": false,
+    "editor.detectIndentation": false
+  }
+}
