@@ -14,21 +14,7 @@ services:
               device_ids:
                 - "0"
     environment:
-      CLI_ARGS: --allow-code --xformers --enable-insecure-extension-access --api
-    command:
-      - "python"
-      - "-u"
-      - "webui.py"
-      - "--listen"
-      - "--port"
-      -  "7860"
-      - "--allow-code"
-      - "--xformers"
-      - "--enable-insecure-extension-access"
-      - "--api"
-      - "--no-half"
-      - "--precision"
-      - "full"
+      CLI_ARGS: --allow-code --xformers --enable-insecure-extension-access --api --enable-insecure-extension-access --no-half --precision full
     ports:
       - mode: ingress
         target: 7860
@@ -45,7 +31,3 @@ services:
         target: /output
         bind:
           create_host_path: true
-
-networks:
-  default:
-    name: sd-webui
