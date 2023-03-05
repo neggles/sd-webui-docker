@@ -14,7 +14,7 @@ services:
               device_ids:
                 - "0"
     environment:
-      CLI_ARGS: --allow-code --medvram --xformers --enable-insecure-extension-access --api
+      CLI_ARGS: --allow-code --xformers --enable-insecure-extension-access --api
     ports:
       - mode: ingress
         target: 7860
