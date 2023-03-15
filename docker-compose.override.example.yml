@@ -1,0 +1,16 @@
+version: "3.7"
+services:
+  auto:
+    image: sd-auto:46-2
+    restart: unless-stopped
+    container_name: webui
+    environment:
+      CLI_ARGS: "--allow-code --xformers --enable-insecure-extension-access --precision full --no-half --no-half-vae"
+      PYTORCH_CUDA_ALLOC_CONF: "garbage_collection_threshold:0.96,max_split_size_mb:512"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [ gpu ]
+              device_ids: [ "0" ]

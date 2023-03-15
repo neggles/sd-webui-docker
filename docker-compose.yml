@@ -8,11 +8,9 @@ services:
       resources:
         reservations:
           devices:
-            - capabilities:
-                - gpu
-              driver: nvidia
-              device_ids:
-                - "0"
+            - driver: nvidia
+              capabilities: [ gpu ]
+              device_ids: [ "0" ]
     environment:
       CLI_ARGS: --allow-code --xformers --enable-insecure-extension-access --api
     ports:
