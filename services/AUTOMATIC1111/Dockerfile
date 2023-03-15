@@ -156,12 +156,15 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 RUN --mount=type=cache,target=/root/.cache/pip \
   pip install -U opencv-python-headless
 
+# Install moviepy and up-to-date tqdm
+RUN --mount=type=cache,target=/root/.cache/pip \
+  pip install moviepy==1.0.3 tqdm==4.65.0 imageio-ffmpeg
+
 # Add the rest of the files
 COPY . /docker
 
 # Commit high treason
 RUN python3 /docker/info.py ${ROOT}/modules/ui.py \
-  && mv ${ROOT}/style.css ${ROOT}/user.css \
   && sed -i 's/in_app_dir = .*/in_app_dir = True/g' /usr/local/lib/python3.10/site-packages/gradio/routes.py
 
 # Set up the entrypoint
