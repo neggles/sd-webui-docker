@@ -1,65 +1,121 @@
-#!/bin/bash
-
+#!/usr/bin/env bash
 set -Eeuo pipefail
 
-# TODO: move all mkdir -p ?
-mkdir -p /data/config/auto/scripts/
-# mount scripts individually
-find "${ROOT}/scripts/" -maxdepth 1 -type l -delete
-cp -vrfTs /data/config/auto/scripts/ "${ROOT}/scripts/"
+# Set up our directory mapping table
+repo_root=${ROOT:-'/stable-diffusion-webui'}
+data_dir=${DATA_DIR:-'/data'}
+declare -A path_map
 
-cp -n /docker/config.json /data/config/auto/config.json
-jq '. * input' /data/config/auto/config.json /docker/config.json | sponge /data/config/auto/config.json
+path_map["${repo_root}/models/Stable-diffusion"]="${data_dir}/StableDiffusion"
+path_map["${repo_root}/models/VAE"]="${data_dir}/VAE"
+path_map["${repo_root}/models/Codeformer"]="${data_dir}/Codeformer"
+path_map["${repo_root}/models/ControlNet"]="${data_dir}/ControlNet"
+path_map["${repo_root}/models/GFPGAN"]="${data_dir}/GFPGAN"
+path_map["${repo_root}/models/ESRGAN"]="${data_dir}/ESRGAN"
+path_map["${repo_root}/models/BSRGAN"]="${data_dir}/BSRGAN"
+path_map["${repo_root}/models/RealESRGAN"]="${data_dir}/RealESRGAN"
+path_map["${repo_root}/models/SwinIR"]="${data_dir}/SwinIR"
+path_map["${repo_root}/models/ScuNET"]="${data_dir}/ScuNET"
+path_map["${repo_root}/models/LDSR"]="${data_dir}/LDSR"
+path_map["${repo_root}/models/hypernetworks"]="${data_dir}/Hypernetworks"
+path_map["${repo_root}/models/torch_deepdanbooru"]="${data_dir}/Deepdanbooru"
+path_map["${repo_root}/models/BLIP"]="${data_dir}/BLIP"
+path_map["${repo_root}/models/midas"]="${data_dir}/MiDaS"
+path_map["${repo_root}/models/Lora"]="${data_dir}/Lora"
 
-if [ ! -f /data/config/auto/ui-config.json ]; then
-  echo '{}' >/data/config/auto/ui-config.json
+# extra hack for CodeFormer
+path_map["${repo_root}/repositories/CodeFormer/weights/facelib"]="${data_dir}/.cache"
+
+# add pip cache path to path_map
+if [[ -d ${HOME} ]]; then
+    echo "Using ${HOME}/.cache for pip cache"
+    path_map["${HOME}/.cache"]="${data_dir}/.cache"
+else
+    echo "Warning: No home directory found, using /tmp/.cache for pip cache"
+    path_map["/tmp/.cache"]="${data_dir}/.cache"
 fi
 
-declare -A MOUNTS
+# add other paths to path_map
+path_map["${repo_root}/embeddings"]="${data_dir}/embeddings"
+path_map["${repo_root}/extensions"]="${data_dir}/config/auto/extensions"
+# scripts we can't symlink because of gradio security reasons
+#path_map["${repo_root}/scripts"]="${data_dir}/config/auto/scripts"
 
-MOUNTS["/root/.cache"]="/data/.cache"
+### Execution begins here ###
 
-# main
-MOUNTS["${ROOT}/models/Stable-diffusion"]="/data/StableDiffusion"
-MOUNTS["${ROOT}/models/VAE"]="/data/VAE"
-MOUNTS["${ROOT}/models/Codeformer"]="/data/Codeformer"
-MOUNTS["${ROOT}/models/GFPGAN"]="/data/GFPGAN"
-MOUNTS["${ROOT}/models/ESRGAN"]="/data/ESRGAN"
-MOUNTS["${ROOT}/models/BSRGAN"]="/data/BSRGAN"
-MOUNTS["${ROOT}/models/RealESRGAN"]="/data/RealESRGAN"
-MOUNTS["${ROOT}/models/SwinIR"]="/data/SwinIR"
-MOUNTS["${ROOT}/models/ScuNET"]="/data/ScuNET"
-MOUNTS["${ROOT}/models/LDSR"]="/data/LDSR"
-MOUNTS["${ROOT}/models/hypernetworks"]="/data/Hypernetworks"
-MOUNTS["${ROOT}/models/torch_deepdanbooru"]="/data/Deepdanbooru"
-MOUNTS["${ROOT}/models/BLIP"]="/data/BLIP"
-MOUNTS["${ROOT}/models/midas"]="/data/MiDaS"
-MOUNTS["${ROOT}/models/Lora"]="/data/Lora"
+# create path maps and symlink them
+for tgt_path in "${!path_map[@]}"; do
+    echo -n "link ${tgt_path#"/${repo_root}"})"
+    # get source path and create it if it doesn't exist
+    src_path="${path_map[${tgt_path}]}"
+    [[ -d ${src_path} ]] || mkdir -vp "${src_path}"
 
-MOUNTS["${ROOT}/embeddings"]="/data/embeddings"
-MOUNTS["${ROOT}/config.json"]="/data/config/auto/config.json"
-MOUNTS["${ROOT}/ui-config.json"]="/data/config/auto/ui-config.json"
-MOUNTS["${ROOT}/extensions"]="/data/config/auto/extensions"
+    # ensure target parent directory exists
+    tgt_parent="$(dirname "${tgt_path}")"
+    [[ -d ${tgt_parent} ]] || mkdir -vp "${tgt_parent}"
 
-# extra hacks
-MOUNTS["${ROOT}/repositories/CodeFormer/weights/facelib"]="/data/.cache"
-
-for to_path in "${!MOUNTS[@]}"; do
-  set -Eeuo pipefail
-  from_path="${MOUNTS[${to_path}]}"
-  rm -rf "${to_path}"
-  if [ ! -f "$from_path" ]; then
-    mkdir -vp "$from_path"
-  fi
-  mkdir -vp "$(dirname "${to_path}")"
-  ln -sT "${from_path}" "${to_path}"
-  echo Mounted $(basename "${from_path}")
+    # clean out target directory and symlink it to source path
+    rm -rf "${tgt_path}"
+    ln -sT "${src_path}" "${tgt_path}"
+    echo " -> ${src_path} (directory)"
 done
 
-if [ -f "/data/config/auto/startup.sh" ]; then
-  pushd ${ROOT}
-  . /data/config/auto/startup.sh
-  popd
+# Map config and script files to their target locations
+declare -A file_map
+# add files to file_map
+file_map["${repo_root}/config.json"]="${data_dir}/config/auto/config.json"
+file_map["${repo_root}/ui-config.json"]="${data_dir}/config/auto/ui-config.json"
+file_map["${repo_root}/user.css"]="${data_dir}/config/auto/user.css"
+
+# copy default config.json if there isn't one
+if [ ! -f "${data_dir}/config/auto/config.json" ]; then
+    cp -n "/docker/config.json" "${data_dir}/config/auto/config.json"
+fi
+# create empty ui-config.json if none provided
+if [ ! -f "${data_dir}/config/auto/ui-config.json" ]; then
+    echo '{}' > "${data_dir}/config/auto/ui-config.json"
+fi
+# create empty user.css if none provided
+if [ ! -f "${data_dir}/config/auto/user.css" ]; then
+    echo '' > "${data_dir}/config/auto/user.css"
+fi
+
+# merge system config.json with default config.json
+jq '. * input' "${data_dir}/config/auto/config.json" "/docker/config.json" \
+    | sponge "${data_dir}/config/auto/config.json"
+
+# symlink files
+for tgt_path in "${!file_map[@]}"; do
+    echo -n "link ${tgt_path#"/${repo_root}"})"
+
+    # get source path
+    src_path="${file_map[${tgt_path}]}"
+
+    # ensure target parent directory exists
+    tgt_parent="$(dirname "${tgt_path}")"
+    [[ -d ${tgt_parent} ]] || mkdir -vp "${tgt_parent}"
+
+    # delete target if it exists and symlink it to source path
+    rm -rf "${tgt_path}"
+    ln -sT "${src_path}" "${tgt_path}"
+    echo " -> ${src_path} (file)"
+done
+
+# Copy scripts individually to avoid purging the directory
+cp -vrfTs "${data_dir}/config/auto/scripts/" "${repo_root}/scripts/"
+
+# Run startup script if it exists
+if [ -f "${data_dir}/config/auto/startup.sh" ]; then
+    pushd "${repo_root}" > /dev/null
+    echo "Running startup script..."
+    # shellcheck source=/dev/null
+    . "${data_dir}/config/auto/startup.sh"
+    popd > /dev/null
+fi
+
+if [[ $1 == 'python' ]]; then
+    # Run the python script
+    exec python "${repo_root}/app.py"
 fi
 
 exec "$@"

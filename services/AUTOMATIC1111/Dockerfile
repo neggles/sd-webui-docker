@@ -49,7 +49,7 @@ RUN rm -fr /git/interrogate \
   && cp -r /git/repositories/clip-interrogator/clip_interrogator/data /git/interrogate
 
 # Build the main image
-FROM python:3.10.9-slim AS app
+FROM python:3.10.9-slim AS base
 
 # Set shell
 SHELL ["/bin/bash", "-ceuxo", "pipefail"]
@@ -144,8 +144,12 @@ RUN --mount=type=cache,target=/var/cache/apt \
   && apt-get clean
 ENV LD_PRELOAD=libtcmalloc.so
 
+FROM base AS app
+
+ARG PIP_PREFER_BINARY
+
 # Clone the AUTOMATIC1111 repo and install deps
-ARG SHA=0cc0ee1bcb4c24a8c9715f66cede06601bfc00c8
+ARG SHA=a9fed7c364061ae6efb37f797b6b522cb3cf7aa2
 RUN --mount=type=cache,target=/root/.cache/pip \
   cd stable-diffusion-webui \
   && git fetch \
@@ -164,12 +168,13 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 COPY . /docker
 
 # Commit high treason
-RUN python3 /docker/info.py ${ROOT}/modules/ui.py \
+RUN python3 /docker/info.py "${ROOT}/modules/ui.py" \
   && sed -i 's/in_app_dir = .*/in_app_dir = True/g' /usr/local/lib/python3.10/site-packages/gradio/routes.py
 
 # Set up the entrypoint
 WORKDIR ${ROOT}
 ENV CLI_ARGS=""
+ENV DATA_DIR=/data
 EXPOSE 7860
 ENTRYPOINT [ "/docker/entrypoint.sh" ]
 CMD python -u webui.py --listen --port 7860 ${CLI_ARGS}
