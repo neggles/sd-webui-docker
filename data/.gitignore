@@ -1,22 +1,24 @@
 # for all of the stuff downloaded by transformers, pytorch, and others
-/.cache
+/.cache/
 # for UIs
-/config
+/config/
 # for all stable diffusion models (main, waifu diffusion, etc..)
-/StableDiffusion
+/StableDiffusion/
 # others
-/Codeformer
-/GFPGAN
-/ESRGAN
-/BSRGAN
-/RealESRGAN
-/SwinIR
-/MiDaS
-/BLIP
-/ScuNET
-/LDSR
-/Deepdanbooru
-/Hypernetworks
-/VAE
-/embeddings
-/Lora
+/Codeformer/
+/GFPGAN/
+/ESRGAN/
+/BSRGAN/
+/RealESRGAN/
+/SwinIR/
+/MiDaS/
+/BLIP/
+/ScuNET/
+/LDSR/
+/Deepdanbooru/
+/Hypernetworks/
+/VAE/
+/embeddings/
+/Lora/
+# ControlNet extension wants this
+/ControlNet/

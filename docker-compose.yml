@@ -1,9 +1,10 @@
 services:
   auto:
-    image: sd-auto:46
+    image: sd-auto:49
     build:
       context: ./services/AUTOMATIC1111
       dockerfile: Dockerfile
+      target: app
     deploy:
       resources:
         reservations:
@@ -22,10 +23,7 @@ services:
       - type: bind
         source: ./data
         target: /data
-        bind:
-          create_host_path: true
       - type: bind
         source: ./output
         target: /output
-        bind:
-          create_host_path: true
+
