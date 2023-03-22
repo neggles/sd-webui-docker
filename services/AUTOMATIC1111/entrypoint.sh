@@ -104,6 +104,9 @@ done
 # Copy scripts individually to avoid purging the directory
 cp -vrfTs "${data_dir}/config/auto/scripts/" "${repo_root}/scripts/"
 
+# Set git config so it won't warn and confuse the webui
+git config --global pull.ff only
+
 # Run startup script if it exists
 if [ -f "${data_dir}/config/auto/startup.sh" ]; then
     pushd "${repo_root}" > /dev/null

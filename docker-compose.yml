@@ -5,6 +5,9 @@ services:
       context: ./services/AUTOMATIC1111
       dockerfile: Dockerfile
       target: app
+      args:
+        - TORCH_VERSION=2.0.0+cu118
+        - TORCH_INDEX_URL=https://download.pytorch.org/whl/cu118
     deploy:
       resources:
         reservations:
