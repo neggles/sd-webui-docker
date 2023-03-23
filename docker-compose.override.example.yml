@@ -10,9 +10,15 @@ services:
     #     - TORCH_INDEX_URL=https://download.pytorch.org/whl/cu118
     environment:
       # passing some extra args and env vars to the container
-      CLI_ARGS: "--allow-code --xformers --force-enable-xformers --enable-insecure-extension-access --api --no-half --precision full --opt-channelslast"
-      # setting up pytorch garbage collection
+      CLI_ARGS: "--allow-code --xformers --force-enable-xformers --enable-insecure-extension-access --api --no-half --no-half-vae --precision full --opt-channelslast"
+      # set up CUDA garbage collection
       PYTORCH_CUDA_ALLOC_CONF: "garbage_collection_threshold:0.96,max_split_size_mb:512"
+      # other CUDA-related options
+      TORCH_CUDNN_V8_API_ENABLED: "1"
+      CUDA_MODULE_LOADING: "lazy"
+      USE_EXPERIMENTAL_CUDNN_V8_API: 1
+    # may help if you're using Accelerate
+    ipc: host
     # changing which GPU you're using (optional)
     deploy:
       resources:

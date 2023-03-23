@@ -103,5 +103,5 @@ $RECYCLE.BIN/
 /docker-compose.*.yaml
 /docker-compose.override.yml
 /docker-compose.override.yaml
-!/docker-compose.upstream.yml
+!/docker-compose.torch2.yml
 !/docker-compose.*.example.yml

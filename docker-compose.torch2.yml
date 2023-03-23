@@ -1,15 +1,15 @@
 version: "3.7"
 services:
   webui:
-    image: sd-webui:50
+    image: sd-webui:50v2
     restart: unless-stopped
     container_name: sd-webui
     build:
       context: ./docker
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.torch2
       target: app
     environment:
-      CLI_ARGS: --allow-code --xformers --enable-insecure-extension-access --api
+      CLI_ARGS: "--allow-code --enable-insecure-extension-access --api  --xformers --opt-channelslast"
       # make TQDM behave a little better
       PYTHONUNBUFFERED: "1"
       TERM: "${TERM}"
