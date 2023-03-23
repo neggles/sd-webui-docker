@@ -1,22 +1,16 @@
 services:
-  auto:
-    image: sd-auto:49
+  webui:
+    image: sd-webui:50
+    restart: unless-stopped
+    container_name: sd-webui
     build:
-      context: ./services/AUTOMATIC1111
+      context: ./docker
       dockerfile: Dockerfile
       target: app
-      args:
-        - TORCH_VERSION=2.0.0+cu118
-        - TORCH_INDEX_URL=https://download.pytorch.org/whl/cu118
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              capabilities: [ gpu ]
-              device_ids: [ "0" ]
     environment:
       CLI_ARGS: --allow-code --xformers --enable-insecure-extension-access --api
+      PYTHONUNBUFFERED: "1"
+      TERM: "${TERM}"
     ports:
       - mode: ingress
         target: 7860
@@ -29,4 +23,10 @@ services:
       - type: bind
         source: ./output
         target: /output
-
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [ gpu ]
+              device_ids: [ "0" ]

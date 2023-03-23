@@ -1,12 +1,19 @@
 version: "3.7"
 services:
-  auto:
-    image: sd-auto:49
-    restart: unless-stopped
-    container_name: webui
+  webui:
+    # image: sd-webui:50 # uncomment this line if you're using a modified image
+    container_name: sd-webui
+    # example build args for torch2.0, not tested
+    # build:
+    #   args:
+    #     - TORCH_VERSION=2.0.0+cu118
+    #     - TORCH_INDEX_URL=https://download.pytorch.org/whl/cu118
     environment:
-      CLI_ARGS: "--allow-code --xformers --enable-insecure-extension-access --precision full --no-half --no-half-vae"
+      # passing some extra args and env vars to the container
+      CLI_ARGS: "--allow-code --xformers --force-enable-xformers --enable-insecure-extension-access --api --no-half --precision full --opt-channelslast"
+      # setting up pytorch garbage collection
       PYTORCH_CUDA_ALLOC_CONF: "garbage_collection_threshold:0.96,max_split_size_mb:512"
+    # changing which GPU you're using (optional)
     deploy:
       resources:
         reservations:
@@ -14,3 +21,4 @@ services:
             - driver: nvidia
               capabilities: [ gpu ]
               device_ids: [ "0" ]
+
