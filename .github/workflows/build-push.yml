@@ -58,10 +58,6 @@ jobs:
         run: |
           echo "sha_short=${GITHUB_SHA::8}" >> $GITHUB_ENV
 
-      - name: Set up QEMU
-        id: qemu
-        uses: docker/setup-qemu-action@v2
-
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v2
@@ -88,7 +84,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: ./docker
-          file: Dockerfile
+          file: ./docker/Dockerfile
           platforms: ${{ env.IMAGE_PLATFORMS }}
           push: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || inputs.force-push }}
           tags: ${{ steps.meta.outputs.tags }}
