@@ -23,8 +23,6 @@ on:
   pull_request:
     paths:
       - docker/
-      - docker-compose.yml
-      - docker-compose.override.yml
 
 defaults:
   run:

@@ -1,7 +1,7 @@
 version: "3.7"
 services:
   webui:
-    image: sd-webui:51
+    image: ghcr.io/neggles/sd-webui-docker:latest
     restart: unless-stopped
     container_name: sd-webui
     build:
@@ -9,7 +9,7 @@ services:
       dockerfile: Dockerfile
       target: app
     environment:
-      CLI_ARGS: "--allow-code --enable-insecure-extension-access --api  --xformers --opt-channelslast"
+      CLI_ARGS: "--allow-code --enable-insecure-extension-access --api --xformers --opt-channelslast"
       # make TQDM behave a little better
       PYTHONUNBUFFERED: "1"
       TERM: "${TERM}"

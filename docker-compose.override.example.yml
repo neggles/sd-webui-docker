@@ -1,7 +1,7 @@
 version: "3.7"
 services:
   webui:
-    # image: sd-webui:tag # uncomment this line if you're using a modified image
+    #image: sd-webui-docker:51 # uncomment this if you're doing a local build
     container_name: sd-webui
     environment:
       # passing some extra args and env vars to the container
