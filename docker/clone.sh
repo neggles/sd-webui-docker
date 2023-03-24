@@ -7,6 +7,9 @@ repo_ref=${3:?"repo_ref is required"}
 
 repo_path="/git/repositories/${repo_dir}"
 
+# give git a default branch name so it's happy
+git config --global init.defaultBranch main
+
 # make dir
 mkdir -p "${repo_path}"
 
