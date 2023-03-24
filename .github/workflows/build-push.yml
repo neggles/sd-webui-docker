@@ -1,0 +1,97 @@
+name: Docker Build
+run-name: Docker Build (${{ github.event_name }})
+
+on:
+  push:
+    branches:
+      - "main"
+      - "release"
+    paths:
+      - "docker/*"
+      - "Dockerfile*"
+      - "start.py"
+      - ".github/workflows/build-push.yml"
+      - "!**.md"
+  workflow_dispatch:
+    inputs:
+      force-push:
+        description: "push to GHCR"
+        type: boolean
+        required: true
+        default: false
+
+  pull_request:
+    paths:
+      - docker/
+      - docker-compose.yml
+      - docker-compose.override.yml
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_PLATFORMS: "linux/amd64"
+
+jobs:
+  build:
+    name: Build CUDA
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Get short SHA ref
+        id: vars
+        run: |
+          echo "sha_short=${GITHUB_SHA::8}" >> $GITHUB_ENV
+
+      - name: Set up QEMU
+        id: qemu
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          platforms: ${{ env.IMAGE_PLATFORMS }}
+
+      - name: Login to GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest,enable=true
+            type=raw,value=rev-${{ env.sha_short }}
+
+      - name: Build and Push Versioned Tags
+        uses: docker/build-push-action@v3
+        with:
+          context: ./docker
+          file: Dockerfile
+          platforms: ${{ env.IMAGE_PLATFORMS }}
+          push: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || inputs.force-push }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=build-${{ env.IMAGE_NAME }}
+          cache-to: type=gha,mode=max,scope=build-${{ env.IMAGE_NAME }}
