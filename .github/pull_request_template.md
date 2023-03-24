@@ -1,6 +1,6 @@
 <!--
 Have you created an issue before opening a merge request???
-https://github.com/AbdBarho/stable-diffusion-webui-docker#contributing
+https://github.com/neggles/sd-webui-docker#contributing
 Please create one so we can discuss it, I don't want your effort to go to waste.
 -->
 

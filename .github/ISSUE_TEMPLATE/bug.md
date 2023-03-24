@@ -10,8 +10,8 @@ assignees: ""
 
 **Has this issue been opened before?**
 
-- [ ] It is not in the [FAQ](https://github.com/AbdBarho/stable-diffusion-webui-docker/wiki/FAQ), I checked.
-- [ ] It is not in the [issues](https://github.com/AbdBarho/stable-diffusion-webui-docker/issues?q=), I searched.
+- [ ] It is not in the [FAQ](https://github.com/neggles/sd-webui-docker/wiki/FAQ), I checked.
+- [ ] It is not in the [issues](https://github.com/neggles/sd-webui-docker/issues?q=), I searched.
 
 **Describe the bug**
 
