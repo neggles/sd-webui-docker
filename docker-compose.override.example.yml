@@ -1,13 +1,8 @@
 version: "3.7"
 services:
   webui:
-    # image: sd-webui:50 # uncomment this line if you're using a modified image
+    # image: sd-webui:tag # uncomment this line if you're using a modified image
     container_name: sd-webui
-    # example build args for torch2.0, not tested
-    # build:
-    #   args:
-    #     - TORCH_VERSION=2.0.0+cu118
-    #     - TORCH_INDEX_URL=https://download.pytorch.org/whl/cu118
     environment:
       # passing some extra args and env vars to the container
       CLI_ARGS: "--allow-code --xformers --force-enable-xformers --enable-insecure-extension-access --api --no-half --no-half-vae --precision full --opt-channelslast"

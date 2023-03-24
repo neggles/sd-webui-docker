@@ -70,6 +70,7 @@ RUN --mount=type=cache,target=/var/cache/apt apt-get update \
     git \
     gnupg2 \
     jq \
+    libgoogle-perftools-dev \
     moreutils \
     pkg-config \
     rsync \
@@ -93,15 +94,16 @@ RUN --mount=type=cache,target=/var/cache/apt apt-get update \
   && apt-get clean
 
 # Install PyTorch
-ARG TORCH_VERSION=1.13.1+cu117
-ARG TORCH_INDEX_URL=https://download.pytorch.org/whl/cu117
+ARG TORCH_VERSION=2.0.0+cu118
+ARG TORCH_INDEX_URL=https://download.pytorch.org/whl/cu118
 RUN --mount=type=cache,target=/root/.cache/pip \
     python3 -m pip install torch==${TORCH_VERSION} torchvision --extra-index-url ${TORCH_INDEX_URL}
 
 # Clone actual repo
 ARG SD_WEBUI_REF=d7aec59c4eb02f723b3d55c6f927a42e97acd679
+ARG SD_WEBUI_REPO=https://github.com/AUTOMATIC1111/stable-diffusion-webui.git
 RUN --mount=type=cache,target=/root/.cache/pip \
-  git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git \
+  git clone ${SD_WEBUI_REPO} /stable-diffusion-webui \
   && cd stable-diffusion-webui \
   && git reset --hard d7aec59c4eb02f723b3d55c6f927a42e97acd679
 
@@ -111,10 +113,10 @@ RUN --mount=type=cache,target=/root/.cache/pip \
   && pip install -r requirements.txt
 
 # Install xformers and triton
-ARG XFORMERS_VERSION=0.0.17.dev465
-ARG TRITON_VERSION=2.0.0a2
+ARG XFORMERS_VERSION=0.0.17rc481
+ARG TRITON_VERSION=2.0.0.post1
 RUN --mount=type=cache,target=/root/.cache/pip \
-  pip install xformers==${XFORMERS_VERSION} triton==${TRITON_VERSION}
+  pip install --no-deps --pre xformers==${XFORMERS_VERSION} triton==${TRITON_VERSION}
 
 ENV ROOT=/stable-diffusion-webui
 
@@ -137,18 +139,24 @@ RUN --mount=type=cache,target=/root/.cache/pip \
   "git+https://github.com/openai/CLIP.git@${CLIP_PKG_REF}" \
   "git+https://github.com/mlfoundations/open_clip.git@${OPENCLIP_PKG_REF}"
 
-# TODO: either remove if fixed in A1111 (unlikely) or move to the top with other apt stuff
-RUN --mount=type=cache,target=/var/cache/apt \
-  apt-get -y update && \
-  apt-get -y install libgoogle-perftools-dev \
-  && apt-get clean
-ENV LD_PRELOAD=libtcmalloc.so
-
 FROM base AS app
 
+# set up some important environment variables
 ARG PIP_PREFER_BINARY
+ENV LC_ALL=C.UTF-8
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONIOENCODING=utf-8
 
-# Clone the AUTOMATIC1111 repo and install deps
+# CUDA-related
+ENV CUDA_MODULE_LOADING=LAZY
+ENV TORCH_CUDNN_V8_API_ENABLED=1
+ENV USE_EXPERIMENTAL_CUDNN_V8_API=1
+ENV TORCH_ALLOW_TF32_CUBLAS_OVERRIDE=1
+
+# fix an issue in A1111
+ENV LD_PRELOAD=libtcmalloc.so
+
+# Reupdate the repo to target hash and install deps
 ARG SHA=a9fed7c364061ae6efb37f797b6b522cb3cf7aa2
 RUN --mount=type=cache,target=/root/.cache/pip \
   cd stable-diffusion-webui \
@@ -162,19 +170,20 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 # Install moviepy and up-to-date tqdm
 RUN --mount=type=cache,target=/root/.cache/pip \
-  pip install moviepy==1.0.3 tqdm==4.65.0 imageio-ffmpeg
+  pip install moviepy==1.0.3 imageio-ffmpeg
 
 # Add the rest of the files
 COPY . /docker
 
 # Commit high treason
-RUN python3 /docker/info.py "${ROOT}/modules/ui.py" \
-  && sed -i 's/in_app_dir = .*/in_app_dir = True/g' /usr/local/lib/python3.10/site-packages/gradio/routes.py
+RUN sed -i 's/in_app_dir = .*/in_app_dir = True/g' /usr/local/lib/python3.10/site-packages/gradio/routes.py
 
 # Set up the entrypoint
 WORKDIR ${ROOT}
 ENV CLI_ARGS=""
 ENV DATA_DIR=/data
-EXPOSE 7860
+ENV WEBUI_PORT=7860
+
+EXPOSE ${WEBUI_PORT}
 ENTRYPOINT [ "/docker/entrypoint.sh" ]
-CMD python -u webui.py --listen --port 7860 ${CLI_ARGS}
+CMD python -u webui.py --listen --port ${WEBUI_PORT} ${CLI_ARGS}
