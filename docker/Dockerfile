@@ -99,12 +99,15 @@ ARG TORCH_INDEX_URL=https://download.pytorch.org/whl/cu118
 RUN --mount=type=cache,target=/root/.cache/pip \
     python3 -m pip install torch==${TORCH_VERSION} torchvision --extra-index-url ${TORCH_INDEX_URL}
 
+# Where we should put everything
+ENV ROOT_DIR=/stable-diffusion-webui
+
 # Clone actual repo
 ARG SD_WEBUI_REF=d7aec59c4eb02f723b3d55c6f927a42e97acd679
 ARG SD_WEBUI_REPO=https://github.com/AUTOMATIC1111/stable-diffusion-webui.git
 RUN --mount=type=cache,target=/root/.cache/pip \
-  git clone ${SD_WEBUI_REPO} /stable-diffusion-webui \
-  && cd stable-diffusion-webui \
+  git clone ${SD_WEBUI_REPO} ${ROOT_DIR} \
+  && cd ${ROOT_DIR} \
   && git reset --hard ${SD_WEBUI_REF}
 
 # Install requirements
@@ -118,16 +121,14 @@ ARG TRITON_VERSION=2.0.0.post1
 RUN --mount=type=cache,target=/root/.cache/pip \
   pip install --no-deps --pre xformers==${XFORMERS_VERSION} triton==${TRITON_VERSION}
 
-ENV ROOT=/stable-diffusion-webui
-
 # Grab interrograte data
-COPY --from=download /git ${ROOT}
-RUN mkdir -p ${ROOT}/interrogate \
-  && cp -rfv ${ROOT}/repositories/clip-interrogator/clip_interrogator/data ${ROOT}/interrogate
+COPY --from=download /git ${ROOT_DIR}
+RUN mkdir -p ${ROOT_DIR}/interrogate \
+  && cp -rfv ${ROOT_DIR}/repositories/clip-interrogator/clip_interrogator/data ${ROOT_DIR}/interrogate
 
 # Install requirements for CodeFormer
 RUN --mount=type=cache,target=/root/.cache/pip \
-  pip install -r ${ROOT}/repositories/CodeFormer/requirements.txt
+  pip install -r ${ROOT_DIR}/repositories/CodeFormer/requirements.txt
 
 # Install GFPGAN, CLIP, OPENCLIP and pyngrok
 ARG GFPGAN_PKG_REF=8d2447a2d918f8eba5a4a01463fd48e45126a379
@@ -179,7 +180,7 @@ COPY . /docker
 RUN sed -i 's/in_app_dir = .*/in_app_dir = True/g' /usr/local/lib/python3.10/site-packages/gradio/routes.py
 
 # Set up the entrypoint
-WORKDIR ${ROOT}
+WORKDIR ${ROOT_DIR}
 ENV CLI_ARGS=""
 ENV DATA_DIR=/data
 ENV WEBUI_PORT=7860

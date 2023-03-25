@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 
 # Set up our directory mapping table
-repo_root=${ROOT:-'/stable-diffusion-webui'}
+repo_root=${ROOT_DIR:-'/stable-diffusion-webui'}
 data_dir=${DATA_DIR:-'/data'}
 declare -A path_map
 
