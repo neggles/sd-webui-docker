@@ -105,7 +105,7 @@ ARG SD_WEBUI_REPO=https://github.com/AUTOMATIC1111/stable-diffusion-webui.git
 RUN --mount=type=cache,target=/root/.cache/pip \
   git clone ${SD_WEBUI_REPO} /stable-diffusion-webui \
   && cd stable-diffusion-webui \
-  && git reset --hard d7aec59c4eb02f723b3d55c6f927a42e97acd679
+  && git reset --hard ${SD_WEBUI_REF}
 
 # Install requirements
 RUN --mount=type=cache,target=/root/.cache/pip \
