@@ -158,11 +158,11 @@ ENV TORCH_ALLOW_TF32_CUBLAS_OVERRIDE=1
 ENV LD_PRELOAD=libtcmalloc.so
 
 # Reupdate the repo to target hash and install deps
-ARG SHA=a9fed7c364061ae6efb37f797b6b522cb3cf7aa2
+ARG SD_WEBUI_REF
 RUN --mount=type=cache,target=/root/.cache/pip \
   cd stable-diffusion-webui \
   && git fetch \
-  && git reset --hard ${SHA} \
+  && git reset --hard ${SD_WEBUI_REF} \
   && pip install -r requirements_versions.txt
 
 # Install OpenCV
