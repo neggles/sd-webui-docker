@@ -37,9 +37,17 @@ fi
 
 # add other paths to path_map
 path_map["${repo_root}/embeddings"]="${data_dir}/embeddings"
-path_map["${repo_root}/extensions"]="${data_dir}/config/auto/extensions"
+
+if [[ -d "${data_dir}/config/auto" ]]; then
+    config_dir="${data_dir}/config/auto"
+else
+    config_dir="${data_dir}/config"
+fi
+
+path_map["${repo_root}/extensions"]="${config_dir}/auto/extensions"
+path_map["${repo_root}/.vscode"]="${config_dir}/auto/.vscode"
 # scripts we can't symlink because of gradio security reasons
-#path_map["${repo_root}/scripts"]="${data_dir}/config/auto/scripts"
+#path_map["${repo_root}/scripts"]="${config_dir}/auto/scripts"
 
 ### Execution begins here ###
 
@@ -63,26 +71,26 @@ done
 # Map config and script files to their target locations
 declare -A file_map
 # add files to file_map
-file_map["${repo_root}/config.json"]="${data_dir}/config/auto/config.json"
-file_map["${repo_root}/ui-config.json"]="${data_dir}/config/auto/ui-config.json"
-file_map["${repo_root}/user.css"]="${data_dir}/config/auto/user.css"
+file_map["${repo_root}/config.json"]="${config_dir}/config.json"
+file_map["${repo_root}/ui-config.json"]="${config_dir}/ui-config.json"
+file_map["${repo_root}/user.css"]="${config_dir}/user.css"
 
 # copy default config.json if there isn't one
-if [ ! -f "${data_dir}/config/auto/config.json" ]; then
-    cp -n "/docker/config.json" "${data_dir}/config/auto/config.json"
+if [ ! -f "${config_dir}/config.json" ]; then
+    cp -n "/docker/config.json" "${config_dir}/config.json"
 fi
 # create empty ui-config.json if none provided
-if [ ! -f "${data_dir}/config/auto/ui-config.json" ]; then
-    echo '{}' > "${data_dir}/config/auto/ui-config.json"
+if [ ! -f "${config_dir}/ui-config.json" ]; then
+    echo '{}' > "${config_dir}/ui-config.json"
 fi
 # create empty user.css if none provided
-if [ ! -f "${data_dir}/config/auto/user.css" ]; then
-    echo '' > "${data_dir}/config/auto/user.css"
+if [ ! -f "${config_dir}/user.css" ]; then
+    echo '' > "${config_dir}/user.css"
 fi
 
 # merge system config.json with default config.json
-jq '. * input' "${data_dir}/config/auto/config.json" "/docker/config.json" \
-    | sponge "${data_dir}/config/auto/config.json"
+jq '. * input' "${config_dir}/config.json" "/docker/config.json" \
+    | sponge "${config_dir}/config.json"
 
 # symlink files
 for tgt_path in "${!file_map[@]}"; do
@@ -102,17 +110,17 @@ for tgt_path in "${!file_map[@]}"; do
 done
 
 # Copy scripts individually to avoid purging the directory
-cp -vrfTs "${data_dir}/config/auto/scripts/" "${repo_root}/scripts/"
+cp -vrfTs "${config_dir}/scripts/" "${repo_root}/scripts/"
 
 # Set git config so it won't warn and confuse the webui
 git config --global pull.ff only
 
 # Run startup script if it exists
-if [ -f "${data_dir}/config/auto/startup.sh" ]; then
+if [ -f "${config_dir}/startup.sh" ]; then
     pushd "${repo_root}" > /dev/null
     echo "Running startup script..."
     # shellcheck source=/dev/null
-    . "${data_dir}/config/auto/startup.sh"
+    . "${config_dir}/startup.sh"
     popd > /dev/null
 fi
 
