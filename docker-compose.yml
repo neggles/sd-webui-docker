@@ -7,7 +7,7 @@ services:
     build:
       context: ./docker
       dockerfile: Dockerfile
-      target: app
+      target: webui
     environment:
       CLI_ARGS: "--allow-code --enable-insecure-extension-access --api --xformers --opt-channelslast"
       # make TQDM behave a little better

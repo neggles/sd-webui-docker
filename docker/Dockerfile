@@ -140,7 +140,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
   "git+https://github.com/openai/CLIP.git@${CLIP_PKG_REF}" \
   "git+https://github.com/mlfoundations/open_clip.git@${OPENCLIP_PKG_REF}"
 
-FROM base AS app
+FROM base AS webui
 
 # set up some important environment variables
 ARG PIP_PREFER_BINARY
@@ -178,6 +178,60 @@ COPY . /docker
 
 # Commit high treason
 RUN sed -i 's/in_app_dir = .*/in_app_dir = True/g' /usr/local/lib/python3.10/site-packages/gradio/routes.py
+
+# Set up the entrypoint
+WORKDIR ${ROOT_DIR}
+ENV CLI_ARGS=""
+ENV DATA_DIR=/data
+ENV WEBUI_PORT=7860
+
+EXPOSE ${WEBUI_PORT}
+ENTRYPOINT [ "/docker/entrypoint.sh" ]
+CMD python -u webui.py --listen --port ${WEBUI_PORT} ${CLI_ARGS}
+
+
+FROM base AS kohya
+
+# New root dir
+ENV ROOT_DIR=/kohya_ss
+WORKDIR /
+
+# set up some important environment variables
+ARG PIP_PREFER_BINARY
+ENV LC_ALL=C.UTF-8
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONIOENCODING=utf-8
+
+# CUDA-related
+ENV CUDA_MODULE_LOADING=LAZY
+ENV TORCH_CUDNN_V8_API_ENABLED=1
+ENV USE_EXPERIMENTAL_CUDNN_V8_API=1
+ENV TORCH_ALLOW_TF32_CUBLAS_OVERRIDE=1
+
+# fix an issue with a dependency
+ENV LD_PRELOAD=libtcmalloc.so
+
+# Clone the repo
+ARG KOHYA_SS_REF=9c8c480f8e654eeb5a7d92c13b4ce04333840b0c
+ARG KOHYA_SS_REPO=https://github.com/bmaltais/kohya_ss.git
+RUN --mount=type=cache,target=/root/.cache/pip \
+  git clone ${KOHYA_SS_REPO} ${ROOT_DIR} \
+  && cd ${ROOT_DIR} \
+  && git reset --hard ${KOHYA_SS_REF}
+
+# Install requirements
+RUN --mount=type=cache,target=/root/.cache/pip \
+  cd ${ROOT_DIR} \
+  && git fetch \
+  && git reset --hard ${KOHYA_SHA} \
+  && pip install -r requirements_versions.txt
+
+# Install OpenCV
+RUN --mount=type=cache,target=/root/.cache/pip \
+  pip install -U opencv-python-headless
+
+# Add the rest of the files
+COPY . /docker
 
 # Set up the entrypoint
 WORKDIR ${ROOT_DIR}
