@@ -8,7 +8,7 @@ declare -A path_map
 
 path_map["${repo_root}/models/Stable-diffusion"]="${data_dir}/StableDiffusion"
 path_map["${repo_root}/models/VAE"]="${data_dir}/VAE"
-path_map["${repo_root}/models/deepbooru"]="${data_dir}/deepbooru"
+path_map["${repo_root}/models/deepbooru"]="${data_dir}/Deepdanbooru"
 
 
 # add pip cache path to path_map
