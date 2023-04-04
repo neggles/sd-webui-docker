@@ -22,3 +22,6 @@
 /Lora/
 # ControlNet extension wants this
 /ControlNet/
+
+# Kohya_ss
+/kohya/

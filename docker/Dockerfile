@@ -99,6 +99,20 @@ ARG TORCH_INDEX_URL=https://download.pytorch.org/whl/cu118
 RUN --mount=type=cache,target=/root/.cache/pip \
     python3 -m pip install torch==${TORCH_VERSION} torchvision --extra-index-url ${TORCH_INDEX_URL}
 
+FROM base AS webui
+
+# set up some important environment variables
+ARG PIP_PREFER_BINARY
+ENV LC_ALL=C.UTF-8
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONIOENCODING=utf-8
+
+# CUDA-related
+ENV CUDA_MODULE_LOADING=LAZY
+ENV TORCH_CUDNN_V8_API_ENABLED=1
+ENV USE_EXPERIMENTAL_CUDNN_V8_API=1
+ENV TORCH_ALLOW_TF32_CUBLAS_OVERRIDE=1
+
 # Where we should put everything
 ENV ROOT_DIR=/stable-diffusion-webui
 
@@ -140,19 +154,6 @@ RUN --mount=type=cache,target=/root/.cache/pip \
   "git+https://github.com/openai/CLIP.git@${CLIP_PKG_REF}" \
   "git+https://github.com/mlfoundations/open_clip.git@${OPENCLIP_PKG_REF}"
 
-FROM base AS webui
-
-# set up some important environment variables
-ARG PIP_PREFER_BINARY
-ENV LC_ALL=C.UTF-8
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONIOENCODING=utf-8
-
-# CUDA-related
-ENV CUDA_MODULE_LOADING=LAZY
-ENV TORCH_CUDNN_V8_API_ENABLED=1
-ENV USE_EXPERIMENTAL_CUDNN_V8_API=1
-ENV TORCH_ALLOW_TF32_CUBLAS_OVERRIDE=1
 
 # fix an issue in A1111
 ENV LD_PRELOAD=libtcmalloc.so
@@ -189,7 +190,6 @@ EXPOSE ${WEBUI_PORT}
 ENTRYPOINT [ "/docker/entrypoint.sh" ]
 CMD python -u webui.py --listen --port ${WEBUI_PORT} ${CLI_ARGS}
 
-
 FROM base AS kohya
 
 # New root dir
@@ -211,6 +211,26 @@ ENV TORCH_ALLOW_TF32_CUBLAS_OVERRIDE=1
 # fix an issue with a dependency
 ENV LD_PRELOAD=libtcmalloc.so
 
+# Install xformers and triton
+ARG XFORMERS_VERSION=0.0.17rc481
+ARG TRITON_VERSION=2.0.0.post1
+ARG BNB_VERSION=0.37.2
+RUN --mount=type=cache,target=/root/.cache/pip \
+  pip install --no-deps --pre \
+    xformers==${XFORMERS_VERSION} \
+    triton==${TRITON_VERSION} \
+    bitsandbytes==${BNB_VERSION}
+
+# Install dependencies
+RUN --mount=type=cache,target=/var/cache/apt apt-get update \
+  && apt-get -y install --no-install-recommends \
+    python3-tk \
+    ffmpeg \
+    libsm6 \
+    libxext6 \
+    libgl1-mesa-glx \
+    nano
+
 # Clone the repo
 ARG KOHYA_SS_REF=9c8c480f8e654eeb5a7d92c13b4ce04333840b0c
 ARG KOHYA_SS_REPO=https://github.com/bmaltais/kohya_ss.git
@@ -223,22 +243,26 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 RUN --mount=type=cache,target=/root/.cache/pip \
   cd ${ROOT_DIR} \
   && git fetch \
-  && git reset --hard ${KOHYA_SHA} \
-  && pip install -r requirements_versions.txt
+  && git reset --hard ${KOHYA_SS_REF} \
+  && pip install -r requirements.txt
 
 # Install OpenCV
 RUN --mount=type=cache,target=/root/.cache/pip \
-  pip install -U opencv-python-headless
+  pip install -U opencv-python-headless tensorrt
 
-# Add the rest of the files
+# Add the rest of the files and replace the entrypoint
 COPY . /docker
+COPY ./entrypoint_kohya.sh /docker/entrypoint.sh
+
+# war crime
+RUN sed -i 's|interface.launch(|interface.launch(server_name="0.0.0.0", |' ${ROOT_DIR}/dreambooth_gui.py
 
 # Set up the entrypoint
 WORKDIR ${ROOT_DIR}
 ENV CLI_ARGS=""
 ENV DATA_DIR=/data
-ENV WEBUI_PORT=7860
+ENV KOHYA_PORT=7680
 
-EXPOSE ${WEBUI_PORT}
+EXPOSE ${KOHYA_PORT}
 ENTRYPOINT [ "/docker/entrypoint.sh" ]
-CMD python -u webui.py --listen --port ${WEBUI_PORT} ${CLI_ARGS}
+CMD python -u kohya_gui.py --server_port ${KOHYA_PORT} ${CLI_ARGS}
