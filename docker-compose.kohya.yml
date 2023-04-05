@@ -32,6 +32,9 @@ services:
         source: ./data
         target: /data
       - type: bind
+        source: ./kohya
+        target: /data/kohya
+      - type: bind
         source: /usr/local/cuda-12.0
         target: /usr/local/cuda
     deploy:
