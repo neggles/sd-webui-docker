@@ -84,6 +84,10 @@ RUN curl -fsSL https://developer.download.nvidia.com/compute/cuda/repos/debian11
     | gpg --dearmor -o /etc/apt/trusted.gpg.d/cuda.gpg \
   && echo "deb ${CUDA_REPO_URL} /" >/etc/apt/sources.list.d/cuda.list
 
+# PATH
+ENV PATH=$PATH:/usr/local/cuda/bin
+ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64
+
 # Install CUDNN
 ARG CUDA_VERSION=12.0
 ARG CUDNN_VERSION=8.8.0.121
@@ -112,6 +116,8 @@ ENV CUDA_MODULE_LOADING=LAZY
 ENV TORCH_CUDNN_V8_API_ENABLED=1
 ENV USE_EXPERIMENTAL_CUDNN_V8_API=1
 ENV TORCH_ALLOW_TF32_CUBLAS_OVERRIDE=1
+ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility,graphics
+ENV NVIDIA_REQUIRE_CUDA="cuda>=11.8 driver>=450"
 
 # Where we should put everything
 ENV ROOT_DIR=/stable-diffusion-webui
@@ -207,9 +213,15 @@ ENV CUDA_MODULE_LOADING=LAZY
 ENV TORCH_CUDNN_V8_API_ENABLED=1
 ENV USE_EXPERIMENTAL_CUDNN_V8_API=1
 ENV TORCH_ALLOW_TF32_CUBLAS_OVERRIDE=1
+ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility,graphics
+ENV NVIDIA_REQUIRE_CUDA="cuda>=11.8 driver>=450"
 
 # fix an issue with a dependency
 ENV LD_PRELOAD=libtcmalloc.so
+
+# PATHs
+ENV PATH=$PATH:/usr/local/cuda/bin
+ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64
 
 # Install xformers and triton
 ARG XFORMERS_VERSION=0.0.17rc481

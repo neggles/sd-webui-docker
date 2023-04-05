@@ -53,7 +53,7 @@ path_map["${repo_root}/.vscode"]="${config_dir}/.vscode"
 
 # create path maps and symlink them
 for tgt_path in "${!path_map[@]}"; do
-    echo -n "link ${tgt_path#"/${repo_root}"})"
+    echo -n "link ${tgt_path#"/${repo_root}"}"
     # get source path and create it if it doesn't exist
     src_path="${path_map[${tgt_path}]}"
     [[ -d ${src_path} ]] || mkdir -vp "${src_path}"
@@ -94,7 +94,7 @@ jq '. * input' "${config_dir}/config.json" "/docker/config.json" \
 
 # symlink files
 for tgt_path in "${!file_map[@]}"; do
-    echo -n "link ${tgt_path#"/${repo_root}"})"
+    echo -n "link ${tgt_path#"/${repo_root}"}"
 
     # get source path
     src_path="${file_map[${tgt_path}]}"

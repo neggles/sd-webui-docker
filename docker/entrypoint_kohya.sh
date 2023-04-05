@@ -37,7 +37,7 @@ path_map["${repo_root}/.vscode"]="${config_dir}/.vscode"
 
 # create path maps and symlink them
 for tgt_path in "${!path_map[@]}"; do
-    echo -n "link ${tgt_path#"/${repo_root}"})"
+    echo -n "link ${tgt_path#"/${repo_root}"}"
     # get source path and create it if it doesn't exist
     src_path="${path_map[${tgt_path}]}"
     [[ -d ${src_path} ]] || mkdir -vp "${src_path}"
@@ -51,47 +51,6 @@ for tgt_path in "${!path_map[@]}"; do
     ln -sT "${src_path}" "${tgt_path}"
     echo " -> ${src_path} (directory)"
 done
-
-# # Map config and script files to their target locations
-# declare -A file_map
-# # add files to file_map
-# file_map["${repo_root}/config.json"]="${config_dir}/config.json"
-# file_map["${repo_root}/ui-config.json"]="${config_dir}/ui-config.json"
-# file_map["${repo_root}/user.css"]="${config_dir}/user.css"
-
-# # copy default config.json if there isn't one
-# if [ ! -f "${config_dir}/config.json" ]; then
-#     cp -n "/docker/config.json" "${config_dir}/config.json"
-# fi
-# # create empty ui-config.json if none provided
-# if [ ! -f "${config_dir}/ui-config.json" ]; then
-#     echo '{}' > "${config_dir}/ui-config.json"
-# fi
-# # create empty user.css if none provided
-# if [ ! -f "${config_dir}/user.css" ]; then
-#     echo '' > "${config_dir}/user.css"
-# fi
-
-# # merge system config.json with default config.json
-# jq '. * input' "${config_dir}/config.json" "/docker/config.json" \
-#     | sponge "${config_dir}/config.json"
-
-# # symlink files
-# for tgt_path in "${!file_map[@]}"; do
-#     echo -n "link ${tgt_path#"/${repo_root}"})"
-
-#     # get source path
-#     src_path="${file_map[${tgt_path}]}"
-
-#     # ensure target parent directory exists
-#     tgt_parent="$(dirname "${tgt_path}")"
-#     [[ -d ${tgt_parent} ]] || mkdir -vp "${tgt_parent}"
-
-#     # delete target if it exists and symlink it to source path
-#     rm -rf "${tgt_path}"
-#     ln -sT "${src_path}" "${tgt_path}"
-#     echo " -> ${src_path} (file)"
-# done
 
 # Set git config so it won't warn and confuse the webui
 git config --global pull.ff only
