@@ -72,6 +72,7 @@ RUN --mount=type=cache,target=/var/cache/apt apt-get update \
     jq \
     libgoogle-perftools-dev \
     moreutils \
+    nano \
     pkg-config \
     rsync \
     unzip \
@@ -84,6 +85,11 @@ RUN curl -fsSL https://developer.download.nvidia.com/compute/cuda/repos/debian11
     | gpg --dearmor -o /etc/apt/trusted.gpg.d/cuda.gpg \
   && echo "deb ${CUDA_REPO_URL} /" >/etc/apt/sources.list.d/cuda.list
 
+# enable contrib and non-free repos
+RUN --mount=type=cache,target=/var/cache/apt \
+  sed -i 's/main$/main contrib non-free/' /etc/apt/sources.list \
+  && apt-get update
+
 # PATH
 ENV PATH=$PATH:/usr/local/cuda/bin
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64
@@ -91,7 +97,8 @@ ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64
 # Install CUDNN
 ARG CUDA_VERSION=12.0
 ARG CUDNN_VERSION=8.8.0.121
-RUN --mount=type=cache,target=/var/cache/apt apt-get update \
+RUN --mount=type=cache,target=/var/cache/apt \
+  apt-get update \
   && apt-get -y install --no-install-recommends \
     libcudnn8=${CUDNN_VERSION}-1+cuda${CUDA_VERSION} \
     libcudnn8-dev=${CUDNN_VERSION}-1+cuda${CUDA_VERSION} \

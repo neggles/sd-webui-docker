@@ -16,8 +16,8 @@ services:
       # make TQDM behave a little better
       PYTHONUNBUFFERED: "1"
       TERM: "${TERM}"
-      NVIDIA_DRIVER_CAPABILITIES: compute,utility,graphics
-      NVIDIA_VISIBLE_DEVICES: 0
+      # Set to your local cuda version's install path, and update the bind mount below
+      CUDA_HOME: "/usr/local/cuda-12.0"
     ports:
       - mode: ingress
         target: 7681
@@ -31,12 +31,10 @@ services:
       - type: bind
         source: ./data
         target: /data
-      - type: bind
-        source: ./kohya
-        target: /data/kohya
+      # you will need to set this to your local cuda version install path for bitsandbytes to work right
       - type: bind
         source: /usr/local/cuda-12.0
-        target: /usr/local/cuda
+        target: /usr/local/cuda-12.0
     deploy:
       resources:
         reservations:
