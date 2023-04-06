@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# Quick little wrapper around docker-compose to make it easier to run the two containers.
+
+svc_name=${1:-"webui"}
+svc_action=${2:-"up"}
+
+# get script directory and cd into it
+script_dir=$(
+    cd -- "$(dirname "$0")" &> /dev/null
+    pwd -P
+)
+cd "${script_dir}" || exit 1
+
+# shift service name and action off args if provided
+if [[ -n ${1-} ]]; then shift; fi
+if [[ -n ${1-} ]]; then shift; fi
+
+# set compose file and override file based on service name
+case "${svc_name}" in
+    "webui")
+        compose_file='docker-compose.yml'
+        compose_override='docker-compose.override.yml'
+        ;;
+    "kohya")
+        compose_file='docker-compose.kohya.yml'
+        compose_override='docker-compose.kohya.override.yml'
+        ;;
+    *)
+        echo "invalid service name: ${svc_name}"
+        exit 1
+        ;;
+esac
+
+# print some info
+echo "service: ${svc_name}"
+if [[ -n ${compose_override-} ]]; then
+    echo "Using override file: ${compose_override}"
+fi
+
+# run docker-compose
+exec docker compose -f "${compose_file}" -f "${compose_override}" "${svc_action}" "$@"
