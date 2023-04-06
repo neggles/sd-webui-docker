@@ -1,10 +1,33 @@
 {
   "python.analysis.diagnosticMode": "openFilesOnly",
   "python.linting.enabled": false,
+
+  "[shellscript]": {
+    "files.eol": "\n",
+    "editor.tabSize": 4,
+    "editor.detectIndentation": false
+  },
+
   "[python]": {
     "editor.tabSize": 4,
     "editor.detectIndentation": false
   },
+
+  "[json]": {
+    "editor.formatOnSaveMode": "file",
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2,
+    "editor.detectIndentation": false,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.formatOnSaveMode": "file",
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2,
+    "editor.detectIndentation": false,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+
   "[yaml]": {
     "editor.insertSpaces": true,
     "editor.tabSize": 2,
