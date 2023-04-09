@@ -1,5 +1,5 @@
-name: Docker Build
-run-name: Docker Build (${{ github.event_name }})
+name: WebUI Docker Build
+run-name: WebUI Build (${{ github.event_name }})
 
 on:
   push:

@@ -1,5 +1,5 @@
-name: Docker Build
-run-name: Docker Build (${{ github.event_name }})
+name: kohya_ss Docker Build
+run-name: Kohya Build (${{ github.event_name }})
 
 on:
   push:
