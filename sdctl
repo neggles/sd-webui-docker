@@ -33,9 +33,12 @@ esac
 
 # print some info
 echo "service: ${svc_name}"
-if [[ -n ${compose_override-} ]]; then
+if [[ -f ${compose_override-} ]]; then
     echo "Using override file: ${compose_override}"
+    # run docker-compose
+    exec docker compose -f "${compose_file}" -f "${compose_override}" "${svc_action}" "$@"
+else
+    # run docker-compose
+    exec docker compose -f "${compose_file}" "${svc_action}" "$@"
 fi
 
-# run docker-compose
-exec docker compose -f "${compose_file}" -f "${compose_override}" "${svc_action}" "$@"

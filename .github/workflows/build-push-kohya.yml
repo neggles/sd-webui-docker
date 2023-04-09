@@ -10,7 +10,7 @@ on:
       - "docker/*"
       - "Dockerfile*"
       - "start.py"
-      - ".github/workflows/build-push.yml"
+      - ".github/workflows/build-push-kohya.yml"
       - "!**.md"
   workflow_dispatch:
     inputs:
@@ -34,7 +34,7 @@ concurrency:
 
 env:
   IMAGE_REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: neggles/kohya-ss-docker
   IMAGE_PLATFORMS: "linux/amd64"
 
 jobs:
@@ -84,7 +84,7 @@ jobs:
         with:
           context: ./docker
           file: ./docker/Dockerfile
-          target: webui
+          target: kohya
           platforms: ${{ env.IMAGE_PLATFORMS }}
           push: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || inputs.force-push }}
           tags: ${{ steps.meta.outputs.tags }}

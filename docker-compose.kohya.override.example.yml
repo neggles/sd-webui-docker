@@ -1,0 +1,26 @@
+version: "3.7"
+
+services:
+  kohya:
+    #image: sd-webui-docker:52 # uncomment this if you're doing a local build
+    container_name: kohya-ss
+    environment:
+      # passing some extra args and env vars to the container
+      CLI_ARGS: "--listen 0.0.0.0"
+      # set up CUDA garbage collection
+      PYTORCH_CUDA_ALLOC_CONF: "garbage_collection_threshold:0.96,max_split_size_mb:512"
+      # other CUDA-related options
+      TORCH_CUDNN_V8_API_ENABLED: "1"
+      CUDA_MODULE_LOADING: "lazy"
+      USE_EXPERIMENTAL_CUDNN_V8_API: 1
+    # may help if you're using Accelerate
+    ipc: host
+    # changing which GPU you're using (optional)
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [ gpu ]
+              device_ids: [ "0" ]
+
