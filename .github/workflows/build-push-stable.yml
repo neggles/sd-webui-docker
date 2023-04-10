@@ -68,6 +68,7 @@ jobs:
           images: |
             ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
+            type=raw,value=stable,enable={{is_default_branch}}
             type=sha,prefix=stable-,format=short
             type=raw,value=auto-${{ env.SD_WEBUI_REF }},enable={{is_default_branch}}
 
