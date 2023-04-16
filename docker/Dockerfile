@@ -179,9 +179,9 @@ RUN --mount=type=cache,target=/root/.cache/pip \
   && git reset --hard ${SD_WEBUI_REF} \
   && pip install -r requirements_versions.txt
 
-# Install OpenCV
+# Install OpenCV and scikit-learn
 RUN --mount=type=cache,target=/root/.cache/pip \
-  pip install -U opencv-python-headless
+  pip install -U opencv-python-headless scikit-learn
 
 # Install moviepy and up-to-date tqdm
 RUN --mount=type=cache,target=/root/.cache/pip \
