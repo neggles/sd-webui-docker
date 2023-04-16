@@ -33,9 +33,10 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  SD_LATEST_REF: 22bcc7be428c94e9408f589966c2040187245d81
+  SD_STABLE_REF: a9fed7c364061ae6efb37f797b6b522cb3cf7aa2
   IMAGE_REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  IMAGE_PLATFORMS: "linux/amd64"
 
 jobs:
   build:
@@ -44,6 +45,38 @@ jobs:
     permissions:
       packages: write
       contents: read
+
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        include:
+          - name: "WebUI (Latest)"
+            target: "webui"
+            context: "./docker"
+            dockerfile: "./docker/Dockerfile"
+            build-args: |
+              SD_WEBUI_REF=22bcc7be428c94e9408f589966c2040187245d81
+            platforms: "linux/amd64"
+            tags: |
+              type=raw,value=latest,enable={{is_default_branch}}
+              type=sha,prefix=rev-,format=short
+              type=edge
+              type=ref,event=branch
+              type=ref,event=tag
+              type=ref,event=pr
+
+          - name: "WebUI (Stable)"
+            target: "webui"
+            context: "./docker"
+            dockerfile: "./docker/Dockerfile"
+            build-args: |
+              SD_WEBUI_REF=a9fed7c364061ae6efb37f797b6b522cb3cf7aa2
+            platforms: "linux/amd64"
+            tags: |
+              type=raw,value=stable,enable={{is_default_branch}}
+              type=sha,prefix=stable-,format=short
+
     steps:
       - name: Checkout
         id: checkout
@@ -55,7 +88,7 @@ jobs:
         id: buildx
         uses: docker/setup-buildx-action@v2
         with:
-          platforms: ${{ env.IMAGE_PLATFORMS }}
+          platforms: ${{ matrix.platforms }}
 
       - name: Login to GHCR
         uses: docker/login-action@v2
@@ -70,21 +103,15 @@ jobs:
         with:
           images: |
             ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=sha,prefix=rev-,format=short
-            type=edge
-            type=schedule
-            type=ref,event=branch
-            type=ref,event=tag
-            type=ref,event=pr
+          tags: ${{ matrix.tags }}
 
       - name: Build and Push Versioned Tags
         uses: docker/build-push-action@v3
         with:
-          context: ./docker
-          file: ./docker/Dockerfile
-          target: webui
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          build-args: ${{ matrix.build-args }}
+          target: ${{ matrix.target }}
           platforms: ${{ env.IMAGE_PLATFORMS }}
           push: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || inputs.force-push }}
           tags: ${{ steps.meta.outputs.tags }}
