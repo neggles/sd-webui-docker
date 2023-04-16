@@ -1,7 +1,7 @@
 version: "3.7"
 services:
   webui:
-    image: ghcr.io/neggles/sd-webui-docker:latest
+    image: ghcr.io/neggles/sd-webui-docker:stable
     restart: unless-stopped
     container_name: sd-webui
     build:
@@ -25,10 +25,4 @@ services:
       - type: bind
         source: ./output
         target: /output
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              capabilities: [ gpu ]
-              device_ids: [ "0" ]
+
