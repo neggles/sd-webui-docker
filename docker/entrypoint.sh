@@ -23,6 +23,7 @@ path_map["${repo_root}/models/BLIP"]="${data_dir}/BLIP"
 path_map["${repo_root}/models/midas"]="${data_dir}/MiDaS"
 path_map["${repo_root}/models/Lora"]="${data_dir}/Lora"
 path_map["${repo_root}/models/LyCORIS"]="${data_dir}/LyCORIS"
+path_map["${repo_root}/models/openpose"]="${data_dir}/openpose"
 
 # extra hack for CodeFormer
 path_map["${repo_root}/repositories/CodeFormer/weights/facelib"]="${data_dir}/.cache"
