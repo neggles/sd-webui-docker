@@ -58,11 +58,11 @@ for tgt_path in "${!path_map[@]}"; do
     echo -n "link ${tgt_path#"/${repo_root}"}"
     # get source path and create it if it doesn't exist
     src_path="${path_map[${tgt_path}]}"
-    [[ -d ${src_path} ]] || mkdir -vp "${src_path}"
+    [[ -d ${src_path} ]] || mkdir -vp "${src_path}" 2>&1 >/dev/null
 
     # ensure target parent directory exists
     tgt_parent="$(dirname "${tgt_path}")"
-    [[ -d ${tgt_parent} ]] || mkdir -vp "${tgt_parent}"
+    [[ -d ${tgt_parent} ]] || mkdir -vp "${tgt_parent}" 2>&1 >/dev/null
 
     # clean out target directory and symlink it to source path
     rm -rf "${tgt_path}"
@@ -103,7 +103,7 @@ for tgt_path in "${!file_map[@]}"; do
 
     # ensure target parent directory exists
     tgt_parent="$(dirname "${tgt_path}")"
-    [[ -d ${tgt_parent} ]] || mkdir -vp "${tgt_parent}"
+    [[ -d ${tgt_parent} ]] || mkdir -vp "${tgt_parent}" 2>&1 >/dev/null
 
     # delete target if it exists and symlink it to source path
     rm -rf "${tgt_path}"
