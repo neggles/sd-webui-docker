@@ -1,0 +1,20 @@
+Package: *
+Pin: release l=NVIDIA CUDA
+Pin-Priority: 600
+
+Package: *
+Pin: origin developer.download.nvidia.com
+Pin-Priority: 600
+
+Package: *
+Pin: origin nvidia.github.io
+Pin-Priority: 600
+
+# Extra to stop installation of kernel drivers we don't want or need inside the container
+Package: /cuda-drivers-.*/ /cuda-drivers/ /nvidia-kernel-dkms/
+Pin: release l=NVIDIA CUDA
+Pin-Priority: -1
+
+Package: /nvidia-driver-.*/
+Pin: release l=Debian
+Pin-Priority: -1

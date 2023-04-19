@@ -90,6 +90,9 @@ RUN --mount=type=cache,target=/var/cache/apt \
   sed -i 's/main$/main contrib non-free/' /etc/apt/sources.list \
   && apt-get update
 
+# add nVidia repo apt pin to prevent kernel driver installation
+COPY cuda-repo-pin /etc/apt/preferences.d/cuda-repo-pin
+
 # PATH
 ENV PATH=$PATH:/usr/local/cuda/bin
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64
@@ -102,6 +105,14 @@ RUN --mount=type=cache,target=/var/cache/apt \
   && apt-get -y install --no-install-recommends \
     libcudnn8=${CUDNN_VERSION}-1+cuda${CUDA_VERSION} \
     libcudnn8-dev=${CUDNN_VERSION}-1+cuda${CUDA_VERSION} \
+  && apt-get clean
+
+# Install other CUDA libraries
+RUN --mount=type=cache,target=/var/cache/apt \
+  export CUDA_RELEASE=${CUDA_VERSION/./-} \
+  apt-get update \
+  && apt-get -y install --no-install-recommends \
+    cuda-libraries-${CUDA_RELEASE} \
   && apt-get clean
 
 # Install PyTorch
@@ -121,7 +132,6 @@ ENV PYTHONIOENCODING=utf-8
 # CUDA-related
 ENV CUDA_MODULE_LOADING=LAZY
 ENV TORCH_CUDNN_V8_API_ENABLED=1
-ENV USE_EXPERIMENTAL_CUDNN_V8_API=1
 ENV TORCH_ALLOW_TF32_CUBLAS_OVERRIDE=1
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility,graphics
 ENV NVIDIA_REQUIRE_CUDA="cuda>=11.8 driver>=450"
