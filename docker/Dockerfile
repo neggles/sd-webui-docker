@@ -99,6 +99,7 @@ ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64
 
 # Install CUDNN
 ARG CUDA_VERSION=12.0
+ARG CUDA_RELEASE=${CUDA_VERSION/./-}
 ARG CUDNN_VERSION=8.8.0.121
 RUN --mount=type=cache,target=/var/cache/apt \
   apt-get update \
@@ -109,7 +110,6 @@ RUN --mount=type=cache,target=/var/cache/apt \
 
 # Install other CUDA libraries
 RUN --mount=type=cache,target=/var/cache/apt \
-  export CUDA_RELEASE=${CUDA_VERSION/./-} \
   apt-get update \
   && apt-get -y install --no-install-recommends \
     cuda-libraries-${CUDA_RELEASE} \
