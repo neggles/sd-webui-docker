@@ -196,7 +196,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 # Install moviepy and up-to-date tqdm
 RUN --mount=type=cache,target=/root/.cache/pip \
-  pip install moviepy==1.0.3 tqdm>=4.65.0 imageio-ffmpeg
+  pip install 'moviepy==1.0.3' 'tqdm>=4.65.0' 'imageio-ffmpeg'
 
 # Add the rest of the files
 COPY . /docker
