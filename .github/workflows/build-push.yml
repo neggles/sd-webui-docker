@@ -33,8 +33,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  SD_LATEST_REF: 22bcc7be428c94e9408f589966c2040187245d81
   SD_STABLE_REF: a9fed7c364061ae6efb37f797b6b522cb3cf7aa2
+  SD_VLAD_REPO: https://github.com/vladmandic/automatic.git
   IMAGE_REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
@@ -56,7 +56,7 @@ jobs:
             context: "./docker"
             dockerfile: "./docker/Dockerfile"
             build-args: |
-              SD_WEBUI_REF=22bcc7be428c94e9408f589966c2040187245d81
+              SD_WEBUI_REF="origin/master"
             platforms: "linux/amd64"
             tags: |
               type=raw,value=latest,enable={{is_default_branch}}
@@ -71,11 +71,24 @@ jobs:
             context: "./docker"
             dockerfile: "./docker/Dockerfile"
             build-args: |
-              SD_WEBUI_REF=a9fed7c364061ae6efb37f797b6b522cb3cf7aa2
+              SD_WEBUI_REF=$SD_STABLE_REF
             platforms: "linux/amd64"
             tags: |
               type=raw,value=stable,enable={{is_default_branch}}
               type=sha,prefix=stable-,format=short
+
+          - name: "WebUI (vladmandic)"
+            target: "webui"
+            context: "./docker"
+            dockerfile: "./docker/Dockerfile"
+            build-args: |
+              SD_WEBUI_REF="origin/master"
+              SD_WEBUI_REPO=$SD_VLAD_REPO
+              SD_WEBUI_REQFILE="requirements.txt"
+            platforms: "linux/amd64"
+            tags: |
+              type=raw,value=vlad,enable={{is_default_branch}}
+              type=sha,prefix=vlad-,format=short
 
     steps:
       - name: Checkout

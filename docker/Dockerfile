@@ -183,11 +183,12 @@ ENV LD_PRELOAD=libtcmalloc.so
 
 # Reupdate the repo to target hash and install deps
 ARG SD_WEBUI_REF
+ARG SD_WEBUI_REQFILE=requirements_versions.txt
 RUN --mount=type=cache,target=/root/.cache/pip \
   cd stable-diffusion-webui \
   && git fetch \
   && git reset --hard ${SD_WEBUI_REF} \
-  && pip install -r requirements_versions.txt
+  && pip install -r ${SD_WEBUI_REQFILE}
 
 # Install OpenCV and scikit-learn
 RUN --mount=type=cache,target=/root/.cache/pip \
