@@ -20,6 +20,8 @@ services:
       CUDA_DEVICE_DEFAULT_PERSISTING_L2_CACHE_PERCENTAGE_LIMIT: "0"
       SAFETENSORS_FAST_GPU: "1"
       NUMEXPR_MAX_THREADS: "16"
+      TORCH_CUDNN_V8_API_ENABLED: "1"
+      TORCH_ALLOW_TF32_CUBLAS_OVERRIDE: "1"
     ## may help if you're using Accelerate
     ipc: host
     ## Set which GPU/GPUs to attach to the container

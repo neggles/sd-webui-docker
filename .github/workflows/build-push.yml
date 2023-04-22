@@ -33,8 +33,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  SD_STABLE_REF: a9fed7c364061ae6efb37f797b6b522cb3cf7aa2
-  SD_VLAD_REPO: https://github.com/vladmandic/automatic.git
+  AUTO_STABLE_REF: a9fed7c364061ae6efb37f797b6b522cb3cf7aa2
   IMAGE_REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
@@ -51,41 +50,27 @@ jobs:
       max-parallel: 3
       matrix:
         include:
-          - name: "WebUI (Latest)"
-            target: "webui"
-            context: "./docker"
-            dockerfile: "./docker/Dockerfile"
-            build-args: |
-              SD_WEBUI_REF=origin/master
-            platforms: "linux/amd64"
+          - name: "AUTOMATIC1111 (Latest)"
+            target: "auto-latest"
             tags: |
               type=raw,value=latest,enable={{is_default_branch}}
-              type=sha,prefix=rev-,format=short
-              type=edge
+              type=raw,value=latest-{{date 'YYYYMMDD'}},enable={{is_default_branch}}
+              type=sha,prefix=latest-,format=short
               type=ref,event=branch
               type=ref,event=tag
               type=ref,event=pr
 
-          - name: "WebUI (Stable)"
-            target: "webui"
-            context: "./docker"
-            dockerfile: "./docker/Dockerfile"
-            build-args: |
-              SD_WEBUI_REF=$SD_STABLE_REF
-            platforms: "linux/amd64"
+          - name: "AUTOMATIC1111 (Stable)"
+            target: "auto-stable"
             tags: |
               type=raw,value=stable,enable={{is_default_branch}}
+              type=raw,value=stable-{{date 'YYYYMMDD'}},enable={{is_default_branch}}
               type=sha,prefix=stable-,format=short
+              type=semver,pattern={{version}}
+              type=semver,pattern={{major}}.{{minor}}
 
-          - name: "WebUI (vladmandic)"
-            target: "webui"
-            context: "./docker"
-            dockerfile: "./docker/Dockerfile"
-            build-args: |
-              SD_WEBUI_REF=origin/master
-              SD_WEBUI_REPO=$SD_VLAD_REPO
-              SD_WEBUI_REQFILE=requirements.txt
-            platforms: "linux/amd64"
+          - name: "vladmandic (latest)"
+            target: "vlad"
             tags: |
               type=raw,value=vlad,enable={{is_default_branch}}
               type=sha,prefix=vlad-,format=short
@@ -121,13 +106,10 @@ jobs:
       - name: Build and Push Versioned Tags
         uses: docker/build-push-action@v3
         with:
-          context: ${{ matrix.context }}
-          file: ${{ matrix.dockerfile }}
-          build-args: ${{ matrix.build-args }}
-          target: ${{ matrix.target }}
-          platforms: ${{ env.IMAGE_PLATFORMS }}
+          targets: ${{ matrix.target }}
+          files: |
+            ./docker-bake.hcl
+            ${{ steps.meta.outputs.bake-file }}
           push: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || inputs.force-push }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=build-${{ github.repository }}
           cache-to: type=gha,mode=max,scope=build-${{ github.repository }}

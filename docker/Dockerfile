@@ -81,7 +81,8 @@ RUN --mount=type=cache,target=/var/cache/apt apt-get update \
 
 # Get nVidia repo key and add to apt sources
 ARG CUDA_REPO_URL=https://developer.download.nvidia.com/compute/cuda/repos/debian11/x86_64
-RUN curl -fsSL https://developer.download.nvidia.com/compute/cuda/repos/debian11/x86_64/3bf863cc.pub \
+ARG CUDA_REPO_KEY=https://developer.download.nvidia.com/compute/cuda/repos/debian11/x86_64/3bf863cc.pub
+RUN curl -fsSL ${CUDA_REPO_KEY} \
     | gpg --dearmor -o /etc/apt/trusted.gpg.d/cuda.gpg \
   && echo "deb ${CUDA_REPO_URL} /" >/etc/apt/sources.list.d/cuda.list
 
@@ -103,8 +104,8 @@ ARG CUDNN_VERSION=8.8.0.121
 RUN --mount=type=cache,target=/var/cache/apt \
   apt-get update \
   && apt-get -y install --no-install-recommends \
-    libcudnn8=${CUDNN_VERSION}-1+cuda${CUDA_VERSION} \
-    libcudnn8-dev=${CUDNN_VERSION}-1+cuda${CUDA_VERSION} \
+    libcudnn8=${CUDNN_VERSION}*cuda${CUDA_VERSION} \
+    libcudnn8-dev=${CUDNN_VERSION}*cuda${CUDA_VERSION} \
   && apt-get clean
 
 # Install other CUDA libraries
@@ -124,21 +125,29 @@ RUN --mount=type=cache,target=/var/cache/apt \
 #   && apt-get clean
 
 # Install PyTorch
-ARG TORCH_VERSION=2.0.0+cu118
-ARG TORCH_INDEX_URL=https://download.pytorch.org/whl/cu118
+ARG TORCH_VERSION
+ARG TORCH_INDEX
 RUN --mount=type=cache,target=/root/.cache/pip \
-    python3 -m pip install torch==${TORCH_VERSION} torchvision --extra-index-url ${TORCH_INDEX_URL}
+    python3 -m pip install torch==${TORCH_VERSION} torchvision --extra-index-url ${TORCH_INDEX}
 
 FROM base AS webui
 
 # set up some important environment variables
 ARG PIP_PREFER_BINARY
+ARG SD_WEBUI_VARIANT=stable
 ENV LC_ALL=C.UTF-8
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONIOENCODING=utf-8
+ENV SD_WEBUI_VARIANT=${SD_WEBUI_VARIANT}
 
 # CUDA-related
+ENV CUDA_LAUNCH_BLOCKING=0
+ENV CUDA_CACHE_DISABLE=0
+ENV CUDA_AUTO_BOOST=1
 ENV CUDA_MODULE_LOADING=LAZY
+ENV CUDA_DEVICE_DEFAULT_PERSISTING_L2_CACHE_PERCENTAGE_LIMIT=0
+ENV NUMEXPR_MAX_THREADS=16
+ENV SAFETENSORS_FAST_GPU=1
 ENV TORCH_CUDNN_V8_API_ENABLED=1
 ENV TORCH_ALLOW_TF32_CUBLAS_OVERRIDE=1
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility,graphics
@@ -148,7 +157,7 @@ ENV NVIDIA_REQUIRE_CUDA="cuda>=11.8 driver>=450"
 ENV ROOT_DIR=/stable-diffusion-webui
 
 # Clone actual repo
-ARG SD_WEBUI_REF=d7aec59c4eb02f723b3d55c6f927a42e97acd679
+ARG SD_WEBUI_REF
 ARG SD_WEBUI_REPO=https://github.com/AUTOMATIC1111/stable-diffusion-webui.git
 RUN --mount=type=cache,target=/root/.cache/pip \
   git clone ${SD_WEBUI_REPO} ${ROOT_DIR} \
@@ -156,9 +165,10 @@ RUN --mount=type=cache,target=/root/.cache/pip \
   && git reset --hard ${SD_WEBUI_REF}
 
 # Install requirements
+ARG REQFILE_NAME
 RUN --mount=type=cache,target=/root/.cache/pip \
   cd stable-diffusion-webui \
-  && pip install -r requirements.txt
+  && pip install -r ${REQFILE_NAME}
 
 # Install xformers and triton
 ARG XFORMERS_VERSION=0.0.17rc481
@@ -176,27 +186,23 @@ RUN --mount=type=cache,target=/root/.cache/pip \
   pip install -r ${ROOT_DIR}/repositories/CodeFormer/requirements.txt
 
 # Install GFPGAN, CLIP, OPENCLIP and pyngrok
-ARG GFPGAN_PKG_REF=8d2447a2d918f8eba5a4a01463fd48e45126a379
-ARG CLIP_PKG_REF=d50d76daa670286dd6cacf3bcd80b5e4823fc8e1
-ARG OPENCLIP_PKG_REF=bb6e834e9c70d9c27d0dc3ecedeebeaeb1ffad6b
-RUN --mount=type=cache,target=/root/.cache/pip \
-  pip install pyngrok \
+ARG GFPGAN_PKG_REF
+ARG CLIP_PKG_REF
+ARG OPENCLIP_PKG_REF
+RUN pip install pyngrok \
   "git+https://github.com/TencentARC/GFPGAN.git@${GFPGAN_PKG_REF}" \
   "git+https://github.com/openai/CLIP.git@${CLIP_PKG_REF}" \
   "git+https://github.com/mlfoundations/open_clip.git@${OPENCLIP_PKG_REF}"
-
 
 # fix an issue in A1111
 ENV LD_PRELOAD=libtcmalloc.so
 
 # Reupdate the repo to target hash and install deps
-ARG SD_WEBUI_REF
-ARG SD_WEBUI_REQFILE=requirements_versions.txt
 RUN --mount=type=cache,target=/root/.cache/pip \
   cd stable-diffusion-webui \
   && git fetch \
   && git reset --hard ${SD_WEBUI_REF} \
-  && pip install -r ${SD_WEBUI_REQFILE}
+  && pip install -r ${REQFILE_NAME}
 
 # Install OpenCV and scikit-learn
 RUN --mount=type=cache,target=/root/.cache/pip \
@@ -235,12 +241,17 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONIOENCODING=utf-8
 
 # CUDA-related
+ENV CUDA_LAUNCH_BLOCKING=0
+ENV CUDA_CACHE_DISABLE=0
+ENV CUDA_AUTO_BOOST=1
 ENV CUDA_MODULE_LOADING=LAZY
+ENV CUDA_DEVICE_DEFAULT_PERSISTING_L2_CACHE_PERCENTAGE_LIMIT=0
+ENV NUMEXPR_MAX_THREADS=16
+ENV SAFETENSORS_FAST_GPU=1
 ENV TORCH_CUDNN_V8_API_ENABLED=1
-ENV USE_EXPERIMENTAL_CUDNN_V8_API=1
 ENV TORCH_ALLOW_TF32_CUBLAS_OVERRIDE=1
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility,graphics
-ENV NVIDIA_REQUIRE_CUDA="cuda>=11.8 driver>=450"
+ENV NVIDIA_REQUIRE_CUDA=cuda>=11.8 driver>=450
 
 # fix an issue with a dependency
 ENV LD_PRELOAD=libtcmalloc.so
@@ -250,9 +261,9 @@ ENV PATH=$PATH:/usr/local/cuda/bin
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64
 
 # Install xformers and triton
-ARG XFORMERS_VERSION=0.0.17rc481
+ARG XFORMERS_VERSION=0.0.17
 ARG TRITON_VERSION=2.0.0.post1
-ARG BNB_VERSION=0.37.2
+ARG BNB_VERSION=0.38.1
 RUN --mount=type=cache,target=/root/.cache/pip \
   pip install --no-deps --pre \
     xformers==${XFORMERS_VERSION} \

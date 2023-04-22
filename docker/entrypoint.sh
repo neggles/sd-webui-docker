@@ -40,10 +40,23 @@ fi
 # add other paths to path_map
 path_map["${repo_root}/embeddings"]="${data_dir}/embeddings"
 
-if [[ -d "${data_dir}/config/auto" ]]; then
-    config_dir="${data_dir}/config/auto"
+if [[ "${SD_WEBUI_VARIANT}" == "vlad" ]]; then
+    echo "Running vladmandic webui variant"
+    config_dir="${data_dir}/config/vlad"
+    if [[ ! -d ${config_dir} ]]; then
+        echo "vlad config folder not found, creating..."
+        mkdir -p "${config_dir}"
+        if [[ -d "${data_dir}/config/auto" ]]; then
+            echo "Found existing AUTOMATIC1111 config, copying to vlad config"
+            cp -au "${data_dir}/config/auto" "${data_dir}/config/vlad"
+            echo "Purgeing extensions from vlad config (most are built-in and copying breaks them)"
+            rm -fr "${data_dir}/config/vlad/extensions"
+        fi
+        echo "Configuration ready."
+    fi
 else
-    config_dir="${data_dir}/config"
+    echo "Running AUTOMATIC1111 webui variant"
+    config_dir="${data_dir}/config/auto"
 fi
 
 path_map["${repo_root}/extensions"]="${config_dir}/extensions"
@@ -58,11 +71,11 @@ for tgt_path in "${!path_map[@]}"; do
     echo -n "link ${tgt_path#"/${repo_root}"}"
     # get source path and create it if it doesn't exist
     src_path="${path_map[${tgt_path}]}"
-    [[ -d ${src_path} ]] || mkdir -vp "${src_path}" 2>&1 >/dev/null
+    [[ -d ${src_path} ]] || mkdir -vp "${src_path}" 2>&1 > /dev/null
 
     # ensure target parent directory exists
     tgt_parent="$(dirname "${tgt_path}")"
-    [[ -d ${tgt_parent} ]] || mkdir -vp "${tgt_parent}" 2>&1 >/dev/null
+    [[ -d ${tgt_parent} ]] || mkdir -vp "${tgt_parent}" 2>&1 > /dev/null
 
     # clean out target directory and symlink it to source path
     rm -rf "${tgt_path}"
@@ -103,7 +116,7 @@ for tgt_path in "${!file_map[@]}"; do
 
     # ensure target parent directory exists
     tgt_parent="$(dirname "${tgt_path}")"
-    [[ -d ${tgt_parent} ]] || mkdir -vp "${tgt_parent}" 2>&1 >/dev/null
+    [[ -d ${tgt_parent} ]] || mkdir -vp "${tgt_parent}" 2>&1 > /dev/null
 
     # delete target if it exists and symlink it to source path
     rm -rf "${tgt_path}"
@@ -118,7 +131,7 @@ cp -vrfTs "${config_dir}/scripts/" "${repo_root}/scripts/"
 git config --global pull.ff only
 
 # make sure CUDA libs etc. are in path
-if [[ ! -z ${CUDA_HOME:-} ]]; then
+if [[ -n ${CUDA_HOME-} ]]; then
     ln -s ${CUDA_HOME} /usr/local/cuda
     export PATH="${CUDA_HOME}/bin:${PATH}"
     export LD_LIBRARY_PATH="${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}"
