@@ -17,31 +17,31 @@ WORKDIR /git
 COPY --chown=root:root --chmod=0755 ./clone.sh /clone.sh
 
 # Clone repositories
-ARG TAMING_TRANSFORMERS_REF=24268930bf1dce879235a7fddd0b2355b84d7ea6
+ARG TAMING_TRANSFORMERS_REF
 RUN mkdir -p taming-transformers && \
   /clone.sh taming-transformers "https://github.com/CompVis/taming-transformers.git" "${TAMING_TRANSFORMERS_REF}" \
   && cd taming-transformers \
   && rm -fr data assets **/*.ipynb
 
-ARG STABLE_DIFFUSION_REF=47b6b607fdd31875c9279cd2f4f16b92e4ea958e
+ARG STABLE_DIFFUSION_REF
 RUN mkdir -p stable-diffusion-stability-ai && \
   /clone.sh stable-diffusion-stability-ai "https://github.com/Stability-AI/stablediffusion.git" "${STABLE_DIFFUSION_REF}" \
   && cd stable-diffusion-stability-ai \
   && rm -fr ./assets ./data/**/*.png ./data/**/*.jpg ./data/**/*.gif
 
-ARG CODEFORMER_REF=c5b4593074ba6214284d6acd5f1719b6c5d739af
+ARG CODEFORMER_REF
 RUN mkdir -p CodeFormer && \
   /clone.sh CodeFormer https://github.com/sczhou/CodeFormer.git ${CODEFORMER_REF} \
   && cd CodeFormer \
   && rm -fr data assets **/*.ipynb
 
-ARG BLIP_REF=48211a1594f1321b00f14c9f7a5b4813144b2fb9
+ARG BLIP_REF
 RUN /clone.sh BLIP https://github.com/salesforce/BLIP.git ${BLIP_REF}
 
-ARG K_DIFFUSION_REF=5b3af030dd83e0297272d861c19477735d0317ec
+ARG K_DIFFUSION_REF
 RUN /clone.sh k-diffusion https://github.com/crowsonkb/k-diffusion.git ${K_DIFFUSION_REF}
 
-ARG CLIP_INTERROGATOR_REF=08546eae22d825a23f30669e10025098bb4f9dde
+ARG CLIP_INTERROGATOR_REF
 RUN /clone.sh clip-interrogator https://github.com/pharmapsychotic/clip-interrogator ${CLIP_INTERROGATOR_REF}
 
 # Copy interrogate data to where webui will expect it to be
@@ -80,8 +80,8 @@ RUN --mount=type=cache,target=/var/cache/apt apt-get update \
   && apt-get clean
 
 # Get nVidia repo key and add to apt sources
-ARG CUDA_REPO_URL=https://developer.download.nvidia.com/compute/cuda/repos/debian11/x86_64
-ARG CUDA_REPO_KEY=https://developer.download.nvidia.com/compute/cuda/repos/debian11/x86_64/3bf863cc.pub
+ARG CUDA_REPO_URL
+ARG CUDA_REPO_KEY
 RUN curl -fsSL ${CUDA_REPO_KEY} \
     | gpg --dearmor -o /etc/apt/trusted.gpg.d/cuda.gpg \
   && echo "deb ${CUDA_REPO_URL} /" >/etc/apt/sources.list.d/cuda.list
@@ -99,8 +99,8 @@ ENV PATH=$PATH:/usr/local/cuda/bin
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64
 
 # Install CUDNN
-ARG CUDA_VERSION=12.0
-ARG CUDNN_VERSION=8.8.0.121
+ARG CUDA_VERSION
+ARG CUDNN_VERSION
 RUN --mount=type=cache,target=/var/cache/apt \
   apt-get update \
   && apt-get -y install --no-install-recommends \
@@ -109,7 +109,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
   && apt-get clean
 
 # Install other CUDA libraries
-ARG CUDA_RELEASE=12-0
+ARG CUDA_RELEASE
 RUN --mount=type=cache,target=/var/cache/apt \
   apt-get update \
   && apt-get -y install --no-install-recommends \
@@ -134,7 +134,7 @@ FROM base AS webui
 
 # set up some important environment variables
 ARG PIP_PREFER_BINARY
-ARG SD_WEBUI_VARIANT=stable
+ARG SD_WEBUI_VARIANT
 ENV LC_ALL=C.UTF-8
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONIOENCODING=utf-8
@@ -158,7 +158,7 @@ ENV ROOT_DIR=/stable-diffusion-webui
 
 # Clone actual repo
 ARG SD_WEBUI_REF
-ARG SD_WEBUI_REPO=https://github.com/AUTOMATIC1111/stable-diffusion-webui.git
+ARG SD_WEBUI_REPO
 RUN --mount=type=cache,target=/root/.cache/pip \
   git clone ${SD_WEBUI_REPO} ${ROOT_DIR} \
   && cd ${ROOT_DIR} \
@@ -171,8 +171,8 @@ RUN --mount=type=cache,target=/root/.cache/pip \
   && pip install -r ${REQFILE_NAME}
 
 # Install xformers and triton
-ARG XFORMERS_VERSION=0.0.17rc481
-ARG TRITON_VERSION=2.0.0.post1
+ARG XFORMERS_VERSION
+ARG TRITON_VERSION
 RUN --mount=type=cache,target=/root/.cache/pip \
   pip install --no-deps --pre xformers==${XFORMERS_VERSION} triton==${TRITON_VERSION}
 
@@ -261,9 +261,9 @@ ENV PATH=$PATH:/usr/local/cuda/bin
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64
 
 # Install xformers and triton
-ARG XFORMERS_VERSION=0.0.17
-ARG TRITON_VERSION=2.0.0.post1
-ARG BNB_VERSION=0.38.1
+ARG XFORMERS_VERSION
+ARG TRITON_VERSION
+ARG BNB_VERSION
 RUN --mount=type=cache,target=/root/.cache/pip \
   pip install --no-deps --pre \
     xformers==${XFORMERS_VERSION} \
@@ -281,8 +281,8 @@ RUN --mount=type=cache,target=/var/cache/apt apt-get update \
     nano
 
 # Clone the repo
-ARG KOHYA_SS_REF=9c8c480f8e654eeb5a7d92c13b4ce04333840b0c
-ARG KOHYA_SS_REPO=https://github.com/bmaltais/kohya_ss.git
+ARG KOHYA_SS_REF
+ARG KOHYA_SS_REPO
 RUN --mount=type=cache,target=/root/.cache/pip \
   git clone ${KOHYA_SS_REPO} ${ROOT_DIR} \
   && cd ${ROOT_DIR} \
@@ -311,7 +311,8 @@ WORKDIR ${ROOT_DIR}
 ENV CLI_ARGS=""
 ENV DATA_DIR=/data
 ENV KOHYA_PORT=7680
+ENV KOHYA_SCRIPT=kohya_gui.py
 
 EXPOSE ${KOHYA_PORT}
 ENTRYPOINT [ "/docker/entrypoint.sh" ]
-CMD python -u kohya_gui.py --server_port ${KOHYA_PORT} ${CLI_ARGS}
+CMD python -u "${KOHYA_SCRIPT}" --server_port "${KOHYA_PORT}" --listen 0.0.0.0 ${CLI_ARGS}
