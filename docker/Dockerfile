@@ -310,7 +310,7 @@ RUN sed -i 's|interface.launch(|interface.launch(server_name="0.0.0.0", |' ${ROO
 WORKDIR ${ROOT_DIR}
 ENV CLI_ARGS=""
 ENV DATA_DIR=/data
-ENV KOHYA_PORT=7680
+ENV KOHYA_PORT=7681
 ENV KOHYA_SCRIPT=kohya_gui.py
 
 EXPOSE ${KOHYA_PORT}

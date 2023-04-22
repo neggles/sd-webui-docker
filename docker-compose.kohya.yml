@@ -11,17 +11,16 @@ services:
       dockerfile: Dockerfile
       target: kohya
     environment:
-      CLI_ARGS: "--listen 0.0.0.0"
-      KOHYA_PORT: 7681
+      CLI_ARGS: ""
+      KOHYA_PORT: 7861
       # make TQDM behave a little better
-      PYTHONUNBUFFERED: "1"
       TERM: "${TERM}"
       # Set to your local cuda version's install path, and update the bind mount below
       CUDA_HOME: "/usr/local/cuda-12.0"
     ports:
       - mode: ingress
-        target: 7681
-        published: 7681
+        target: 7861
+        published: 7861
         protocol: tcp
       - mode: ingress
         target: 6006
