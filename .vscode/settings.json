@@ -1,4 +1,7 @@
 {
+  "editor.insertSpaces": true,
+  "editor.tabSize": 4,
+
   "python.analysis.diagnosticMode": "openFilesOnly",
   "python.linting.enabled": false,
 
@@ -14,26 +17,32 @@
   },
 
   "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.detectIndentation": false,
     "editor.formatOnSaveMode": "file",
     "editor.formatOnSave": true,
-    "editor.tabSize": 2,
-    "editor.detectIndentation": false,
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.tabSize": 2
   },
   "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.detectIndentation": false,
     "editor.formatOnSaveMode": "file",
     "editor.formatOnSave": true,
-    "editor.tabSize": 2,
-    "editor.detectIndentation": false,
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.tabSize": 2
   },
 
   "[yaml]": {
-    "editor.insertSpaces": true,
+    "editor.detectIndentation": false,
     "editor.tabSize": 2,
     "editor.formatOnSave": true,
     "editor.formatOnSaveMode": "file",
-    "diffEditor.ignoreTrimWhitespace": false,
-    "editor.detectIndentation": false
+    "diffEditor.ignoreTrimWhitespace": false
+  },
+
+  "[hcl]": {
+    "editor.detectIndentation": false,
+    "editor.formatOnSave": true,
+    "editor.formatOnSaveMode": "file",
+    "editor.defaultFormatter": "fredwangwang.vscode-hcl-format"
   }
 }
