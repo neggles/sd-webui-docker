@@ -104,7 +104,7 @@ jobs:
           tags: ${{ matrix.tags }}
 
       - name: Build and Push Versioned Tags
-        uses: docker/build-push-action@v3
+        uses: docker/bake-action@v3
         with:
           targets: ${{ matrix.target }}
           files: |
