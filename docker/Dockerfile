@@ -115,6 +115,14 @@ RUN --mount=type=cache,target=/var/cache/apt \
     cuda-libraries-${CUDA_RELEASE} \
   && apt-get clean
 
+# # Install TensorRT. This doesn't work on Debian yet so it's disabled for now.
+# ARG TENSORRT_VERSION=8.6.0.12-1
+# RUN --mount=type=cache,target=/var/cache/apt \
+#   apt-get update \
+#   && apt-get -y install --no-install-recommends \
+#     tensorrt=${TENSORRT_VERSION}'*' \
+#   && apt-get clean
+
 # Install PyTorch
 ARG TORCH_VERSION=2.0.0+cu118
 ARG TORCH_INDEX_URL=https://download.pytorch.org/whl/cu118
