@@ -4,6 +4,12 @@
 
   "python.analysis.diagnosticMode": "openFilesOnly",
   "python.linting.enabled": false,
+  "python.analysis.extraPaths": [
+    "./stable-diffusion-webui/",
+    "./stable-diffusion-webui/repositories/",
+    "./misc/stable-diffusion-webui/",
+    "./misc/stable-diffusion-webui/repositories/"
+  ],
 
   "[shellscript]": {
     "files.eol": "\n",
