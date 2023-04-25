@@ -214,6 +214,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 # Add the rest of the files
 COPY . /docker
+COPY ./entrypoint_webui.sh /docker/entrypoint.sh
 
 # Commit high treason
 RUN sed -i 's/in_app_dir = .*/in_app_dir = True/g' /usr/local/lib/python3.10/site-packages/gradio/routes.py
@@ -295,9 +296,9 @@ RUN --mount=type=cache,target=/root/.cache/pip \
   && git reset --hard ${KOHYA_SS_REF} \
   && pip install -r requirements.txt
 
-# Install OpenCV
+# Install OpenCV and TensorRT, reinstall bitsandbytes to get latest
 RUN --mount=type=cache,target=/root/.cache/pip \
-  pip install -U opencv-python-headless tensorrt
+  pip install -U opencv-python-headless tensorrt bitsandbytes==${BNB_VERSION}
 
 # Add the rest of the files and replace the entrypoint
 COPY . /docker

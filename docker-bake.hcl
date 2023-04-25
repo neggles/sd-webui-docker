@@ -24,7 +24,7 @@ variable "VLAD_LATEST_REF" {
 }
 
 variable "KOHYA_SS_REF" {
-  default = "65ee72308ff42c119de6d48d016e1ef4ca6d12ef"
+  default = "63657088f4c35a376dd8a936f53e9b9a3b4b1168"
 }
 
 variable "CUDA_VERSION" {

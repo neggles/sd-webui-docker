@@ -8,10 +8,10 @@ on:
       - "release"
     paths:
       - "docker/*"
-      - "Dockerfile*"
-      - "start.py"
+      - "!docker/entrypoint_webui.sh"
       - ".github/workflows/build-push-kohya.yml"
       - "!**.md"
+
   workflow_dispatch:
     inputs:
       force-push:
@@ -22,7 +22,10 @@ on:
 
   pull_request:
     paths:
-      - docker/
+      - "docker/"
+      - "docker-bake.hcl"
+      - "docker-compose.kohya.yml"
+      - ".github/workflows/build-push-kohya.yml"
 
 defaults:
   run:
@@ -33,6 +36,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  KOHYA_SS_REF: 63657088f4c35a376dd8a936f53e9b9a3b4b1168
   IMAGE_REGISTRY: ghcr.io
   IMAGE_NAME: neggles/kohya-ss-docker
   IMAGE_PLATFORMS: "linux/amd64"
@@ -73,21 +77,18 @@ jobs:
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=sha,prefix=rev-,format=short
-            type=edge
-            type=schedule
             type=ref,event=branch
             type=ref,event=tag
             type=ref,event=pr
 
       - name: Build and Push Versioned Tags
-        uses: docker/build-push-action@v3
+        id: build-push
+        uses: docker/bake-action@v3
         with:
-          context: ./docker
-          file: ./docker/Dockerfile
-          target: kohya
-          platforms: ${{ env.IMAGE_PLATFORMS }}
+          targets: kohya
+          files: |
+            ./docker-bake.hcl
+            ${{ steps.meta.outputs.bake-file }}
           push: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || inputs.force-push }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=build-${{ github.repository }}
           cache-to: type=gha,mode=max,scope=build-${{ github.repository }}
