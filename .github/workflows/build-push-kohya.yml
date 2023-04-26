@@ -36,7 +36,6 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  KOHYA_SS_REF: 63657088f4c35a376dd8a936f53e9b9a3b4b1168
   IMAGE_REGISTRY: ghcr.io
   IMAGE_NAME: neggles/kohya-ss-docker
   IMAGE_PLATFORMS: "linux/amd64"
@@ -48,6 +47,32 @@ jobs:
     permissions:
       packages: write
       contents: read
+
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        include:
+          - name: "Latest"
+            target: "kohya"
+            tags: |
+              type=raw,value=latest,enable={{is_default_branch}}
+              type=raw,value=latest-{{date 'YYYYMMDD'}},enable={{is_default_branch}}
+              type=sha,prefix=latest-,format=short
+              type=ref,event=branch
+              type=ref,event=tag
+              type=ref,event=pr
+
+          - name: "Edge"
+            target: "kohya-edge"
+            tags: |
+              type=raw,value=edge,enable={{is_default_branch}}
+              type=raw,value=edge-{{date 'YYYYMMDD'}},enable={{is_default_branch}}
+              type=sha,prefix=edge-,format=short
+              type=ref,event=branch,prefix=edge-
+              type=ref,event=tag,prefix=edge-
+              type=ref,event=pr,prefix=edge-
+
     steps:
       - name: Checkout
         id: checkout
@@ -74,12 +99,7 @@ jobs:
         with:
           images: |
             ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=sha,prefix=rev-,format=short
-            type=ref,event=branch
-            type=ref,event=tag
-            type=ref,event=pr
+          tags: ${{ matrix.tags }}
 
       - name: Dump merged docker-bake.hcl to file
         id: dump-bake
@@ -87,7 +107,7 @@ jobs:
           docker buildx bake --print \
             -f docker-bake.hcl \
             -f ${{ steps.meta.outputs.bake-file }} \
-            kohya | tee docker-bake-kohya.hcl
+            ${{ matrix.target }} | tee docker-bake-${{ matrix.target }}.hcl
 
       - name: Upload metadata artifact
         id: meta-artifact
@@ -96,13 +116,13 @@ jobs:
           name: meta-${{ matrix.target }}
           path: |
             ${{ steps.meta.outputs.bake-file }}
-            docker-bake-kohya.hcl
+            docker-bake-${{ matrix.target }}.hcl
 
       - name: Build and Push Versioned Tags
         id: build-push
         uses: docker/bake-action@v3
         with:
-          targets: kohya
+          targets: ${{ matrix.target }}
           files: |
             ./docker-bake.hcl
             ${{ steps.meta.outputs.bake-file }}

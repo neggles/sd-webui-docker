@@ -27,6 +27,10 @@ variable "KOHYA_SS_REF" {
   default = "63657088f4c35a376dd8a936f53e9b9a3b4b1168"
 }
 
+variable "KOHYA_EDGE_REF" {
+  default = "a39d082e35abe814070bb83086c7bb685bc08d5d"
+}
+
 variable "CUDA_VERSION" {
   default = "12.0"
 }
@@ -140,5 +144,15 @@ target "kohya" {
   args = {
     KOHYA_SS_REPO = "https://github.com/bmaltais/kohya_ss.git"
     KOHYA_SS_REF  = KOHYA_SS_REF
+  }
+}
+
+# bmaltais/kohya_ss training repo
+target "kohya-edge" {
+  inherits = ["common"]
+  target   = "kohya"
+  args = {
+    KOHYA_SS_REPO = "https://github.com/neggles/kohya_ss.git"
+    KOHYA_SS_REF  = KOHYA_EDGE_REF
   }
 }

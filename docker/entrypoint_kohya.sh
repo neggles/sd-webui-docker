@@ -73,7 +73,7 @@ fi
 
 if [[ $1 == 'python' ]]; then
     # Run the python script
-    exec python "${repo_root}/dreambooth_gui.py"
+    exec python "${repo_root}/kohya_gui.py"
 fi
 
 exec "$@"
