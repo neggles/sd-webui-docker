@@ -1,28 +1,29 @@
-# for all of the stuff downloaded by transformers, pytorch, and others
-/.cache/
-# for UIs
-/config/
-# for all stable diffusion models (main, waifu diffusion, etc..)
-/StableDiffusion/
-# others
-/Codeformer/
-/GFPGAN/
-/ESRGAN/
-/BSRGAN/
-/RealESRGAN/
-/SwinIR/
-/MiDaS/
-/BLIP/
-/ScuNET/
-/LDSR/
-/Deepdanbooru/
-/Hypernetworks/
-/VAE/
-/embeddings/
-/Lora/
-/LyCORIS/
-# ControlNet extension wants this
-/ControlNet/
+# pip, transformers, huggingface etc. cache
+/.cache
 
-# Kohya_ss
-/kohya/
+# container configs
+/config
+
+# webui container
+/BLIP
+/BSRGAN
+/Codeformer
+/ControlNet
+/Deepdanbooru
+/embeddings
+/ESRGAN
+/GFPGAN
+/Hypernetworks
+/LDSR
+/Lora
+/LyCORIS
+/MiDaS
+/openpose
+/RealESRGAN
+/ScuNET
+/StableDiffusion
+/SwinIR
+/VAE
+
+# kohya_ss container data
+/kohya
