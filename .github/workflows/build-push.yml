@@ -8,6 +8,8 @@ on:
       - "release"
     paths:
       - "docker/*"
+      - "docker-bake.hcl"
+      - "docker-compose.yml"
       - "!docker/entrypoint_kohya.sh"
       - ".github/workflows/build-push.yml"
       - "!**.md"
@@ -25,7 +27,9 @@ on:
       - "docker/"
       - "docker-bake.hcl"
       - "docker-compose.yml"
+      - "!docker/entrypoint_kohya.sh"
       - ".github/workflows/build-push.yml"
+      - "!**.md"
 
 defaults:
   run:
