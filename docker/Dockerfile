@@ -304,9 +304,6 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 COPY . /docker
 COPY ./entrypoint_kohya.sh /docker/entrypoint.sh
 
-# war crime
-RUN sed -i 's|interface.launch(|interface.launch(server_name="0.0.0.0", |' ${ROOT_DIR}/dreambooth_gui.py
-
 # Set up the entrypoint
 WORKDIR ${ROOT_DIR}
 ENV CLI_ARGS=""
