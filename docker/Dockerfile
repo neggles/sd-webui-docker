@@ -281,6 +281,15 @@ RUN --mount=type=cache,target=/var/cache/apt apt-get update \
     libgl1-mesa-glx \
     nano
 
+# Install other CUDA libraries
+ARG CUDA_RELEASE
+RUN --mount=type=cache,target=/var/cache/apt \
+  apt-get update \
+  && apt-get -y install --no-install-recommends \
+    cuda-libraries-dev-${CUDA_RELEASE} \
+    cuda-cudart-dev-${CUDA_RELEASE} \
+  && apt-get clean
+
 # Clone the repo
 ARG KOHYA_SS_REF
 ARG KOHYA_SS_REPO
