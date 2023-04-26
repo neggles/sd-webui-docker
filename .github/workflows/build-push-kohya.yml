@@ -8,6 +8,8 @@ on:
       - "release"
     paths:
       - "docker/*"
+      - "docker-bake.hcl"
+      - "docker-compose.kohya.yml"
       - "!docker/entrypoint_webui.sh"
       - ".github/workflows/build-push-kohya.yml"
       - "!**.md"
@@ -22,10 +24,12 @@ on:
 
   pull_request:
     paths:
-      - "docker/"
+      - "docker/*"
       - "docker-bake.hcl"
       - "docker-compose.kohya.yml"
+      - "!docker/entrypoint_webui.sh"
       - ".github/workflows/build-push-kohya.yml"
+      - "!**.md"
 
 defaults:
   run:
