@@ -28,7 +28,7 @@ variable "KOHYA_SS_REF" {
 }
 
 variable "KOHYA_EDGE_REF" {
-  default = "a39d082e35abe814070bb83086c7bb685bc08d5d"
+  default = "ad76b1cddfae460372262cb44043701fe1aec96e"
 }
 
 variable "CUDA_VERSION" {
