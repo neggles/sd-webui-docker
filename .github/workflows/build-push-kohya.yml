@@ -131,3 +131,6 @@ jobs:
             ./docker-bake.hcl
             ${{ steps.meta.outputs.bake-file }}
           push: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || inputs.force-push }}
+          set: |
+            *.cache-from=type=gha
+            *.cache-to=type=gha,mode=max
