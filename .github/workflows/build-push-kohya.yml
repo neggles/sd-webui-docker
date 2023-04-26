@@ -81,6 +81,13 @@ jobs:
             type=ref,event=tag
             type=ref,event=pr
 
+      - name: Upload metadata bake file as artifact
+        id: meta-artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: meta
+          path: ${{ steps.meta.outputs.bake-file }}
+
       - name: Build and Push Versioned Tags
         id: build-push
         uses: docker/bake-action@v3
@@ -90,5 +97,3 @@ jobs:
             ./docker-bake.hcl
             ${{ steps.meta.outputs.bake-file }}
           push: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || inputs.force-push }}
-          cache-from: type=gha,scope=build-${{ github.repository }}
-          cache-to: type=gha,mode=max,scope=build-${{ github.repository }}

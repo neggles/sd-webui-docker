@@ -68,7 +68,6 @@ target "common" {
 target "auto-latest" {
   inherits = ["common"]
   target   = "webui"
-  tags     = ["${IMAGE_REGISTRY}/${IMAGE_NAME}:latest"]
   args = {
     SD_WEBUI_VARIANT = "latest"
     SD_WEBUI_REPO    = "https://github.com/AUTOMATIC1111/stable-diffusion-webui.git"
@@ -92,7 +91,6 @@ target "auto-latest" {
 target "auto-stable" {
   inherits = ["common"]
   target   = "webui"
-  tags     = ["${IMAGE_REGISTRY}/${IMAGE_NAME}:stable"]
   args = {
     SD_WEBUI_VARIANT = "stable"
     SD_WEBUI_REPO    = "https://github.com/AUTOMATIC1111/stable-diffusion-webui.git"
@@ -116,7 +114,6 @@ target "auto-stable" {
 target "vlad" {
   inherits = ["common"]
   target   = "webui"
-  tags     = ["${IMAGE_REGISTRY}/${IMAGE_NAME}:vlad"]
   args = {
     SD_WEBUI_VARIANT = "vlad"
     SD_WEBUI_REPO    = "https://github.com/vladmandic/automatic.git"
@@ -140,7 +137,6 @@ target "vlad" {
 target "kohya" {
   inherits = ["common"]
   target   = "kohya"
-  tags     = ["ghcr.io/neggles/kohya-ss-docker:latest"]
   args = {
     KOHYA_SS_REPO = "https://github.com/bmaltais/kohya_ss.git"
     KOHYA_SS_REF  = KOHYA_SS_REF

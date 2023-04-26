@@ -70,14 +70,18 @@ jobs:
               type=raw,value=stable,enable={{is_default_branch}}
               type=raw,value=stable-{{date 'YYYYMMDD'}},enable={{is_default_branch}}
               type=sha,prefix=stable-,format=short
-              type=semver,pattern={{version}}
-              type=semver,pattern={{major}}.{{minor}}
+              type=ref,event=branch,prefix=stable-
+              type=ref,event=tag,prefix=stable-
+              type=ref,event=pr,prefix=stable-
 
           - name: "vladmandic (latest)"
             target: "vlad"
             tags: |
               type=raw,value=vlad,enable={{is_default_branch}}
               type=sha,prefix=vlad-,format=short
+              type=ref,event=branch,prefix=vlad-
+              type=ref,event=tag,prefix=vlad-
+              type=ref,event=pr,prefix=vlad-
 
     steps:
       - name: Checkout
@@ -107,6 +111,13 @@ jobs:
             ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: ${{ matrix.tags }}
 
+      - name: Upload metadata bake file as artifact
+        id: meta-artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: meta
+          path: ${{ steps.meta.outputs.bake-file }}
+
       - name: Build and Push Versioned Tags
         id: build-push
         uses: docker/bake-action@v3
@@ -116,5 +127,3 @@ jobs:
             ./docker-bake.hcl
             ${{ steps.meta.outputs.bake-file }}
           push: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || inputs.force-push }}
-          cache-from: type=gha,scope=build-${{ github.repository }}
-          cache-to: type=gha,mode=max,scope=build-${{ github.repository }}
