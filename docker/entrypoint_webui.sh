@@ -125,14 +125,14 @@ for tgt_path in "${!file_map[@]}"; do
 done
 
 # Copy scripts individually to avoid purging the directory
-cp -vrfTs "${config_dir}/scripts/" "${repo_root}/scripts/"
+cp -vrfTs "${config_dir}/scripts/" "${repo_root}/scripts/" || true
 
 # Set git config so it won't warn and confuse the webui
 git config --global pull.ff only
 
 # make sure CUDA libs etc. are in path
-if [[ -n ${CUDA_HOME-} ]]; then
-    ln -s ${CUDA_HOME} /usr/local/cuda
+if [[ ! -z "${CUDA_HOME:-''}" ]]; then
+    ln -s "${CUDA_HOME}" /usr/local/cuda || true # this may or may not already exist
     export PATH="${CUDA_HOME}/bin:${PATH}"
     export LD_LIBRARY_PATH="${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}"
 fi
@@ -144,11 +144,6 @@ if [ -f "${config_dir}/startup.sh" ]; then
     # shellcheck source=/dev/null
     . "${config_dir}/startup.sh"
     popd > /dev/null
-fi
-
-if [[ $1 == 'python' ]]; then
-    # Run the python script
-    exec python "${repo_root}/app.py"
 fi
 
 exec "$@"
