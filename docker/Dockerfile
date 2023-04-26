@@ -298,7 +298,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 # Install OpenCV and TensorRT, reinstall bitsandbytes to get latest
 RUN --mount=type=cache,target=/root/.cache/pip \
-  pip install -U opencv-python-headless tensorrt bitsandbytes==${BNB_VERSION}
+  pip install -U opencv-python-headless tensorrt bitsandbytes==${BNB_VERSION} wandb
 
 # Add the rest of the files and replace the entrypoint
 COPY . /docker
