@@ -81,12 +81,22 @@ jobs:
             type=ref,event=tag
             type=ref,event=pr
 
-      - name: Upload metadata bake file as artifact
+      - name: Dump merged docker-bake.hcl to file
+        id: dump-bake
+        run: |
+          docker buildx bake --print \
+            -f docker-bake.hcl \
+            -f ${{ steps.meta.outputs.bake-file }} \
+            kohya | tee docker-bake-kohya.hcl
+
+      - name: Upload metadata artifact
         id: meta-artifact
         uses: actions/upload-artifact@v3
         with:
-          name: meta
-          path: ${{ steps.meta.outputs.bake-file }}
+          name: meta-${{ matrix.target }}
+          path: |
+            ${{ steps.meta.outputs.bake-file }}
+            docker-bake-kohya.hcl
 
       - name: Build and Push Versioned Tags
         id: build-push
