@@ -115,7 +115,7 @@ jobs:
         id: meta-artifact
         uses: actions/upload-artifact@v3
         with:
-          name: meta
+          name: meta-${{ matrix.target }}
           path: ${{ steps.meta.outputs.bake-file }}
 
       - name: Build and Push Versioned Tags
