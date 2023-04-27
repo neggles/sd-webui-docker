@@ -130,13 +130,6 @@ cp -vrfTs "${config_dir}/scripts/" "${repo_root}/scripts/" || true
 # Set git config so it won't warn and confuse the webui
 git config --global pull.ff only
 
-# make sure CUDA libs etc. are in path
-if [[ ! -z "${CUDA_HOME:-''}" ]]; then
-    ln -s "${CUDA_HOME}" /usr/local/cuda || true # this may or may not already exist
-    export PATH="${CUDA_HOME}/bin:${PATH}"
-    export LD_LIBRARY_PATH="${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}"
-fi
-
 # Run startup script if it exists
 if [ -f "${config_dir}/startup.sh" ]; then
     pushd "${repo_root}" > /dev/null
