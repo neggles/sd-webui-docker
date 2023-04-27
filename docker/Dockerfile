@@ -73,7 +73,9 @@ RUN --mount=type=cache,target=/var/cache/apt apt-get update \
     libgoogle-perftools-dev \
     moreutils \
     nano \
+    netbase \
     pkg-config \
+    procps \
     rsync \
     unzip \
     wget \
