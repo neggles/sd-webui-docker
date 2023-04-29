@@ -55,7 +55,7 @@ jobs:
 
     strategy:
       fail-fast: false
-      max-parallel: 3
+      max-parallel: 1
       matrix:
         include:
           - name: "AUTOMATIC1111 (Latest)"
@@ -67,6 +67,16 @@ jobs:
               type=ref,event=branch
               type=ref,event=tag
               type=ref,event=pr
+
+          - name: "AUTOMATIC1111 (Edge)"
+            target: "auto-edge"
+            tags: |
+              type=raw,value=edge,enable={{is_default_branch}}
+              type=raw,value=edge-{{date 'YYYYMMDD'}},enable={{is_default_branch}}
+              type=sha,prefix=edge-,format=short
+              type=ref,event=branch,prefix=edge-
+              type=ref,event=tag,prefix=edge-
+              type=ref,event=pr,prefix=edge-
 
           - name: "AUTOMATIC1111 (Stable)"
             target: "auto-stable"

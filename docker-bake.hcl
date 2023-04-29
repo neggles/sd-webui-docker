@@ -16,7 +16,11 @@ variable "AUTO_STABLE_REF" {
 }
 
 variable "AUTO_LATEST_REF" {
-  default = "origin/master"
+  default = "22bcc7be428c94e9408f589966c2040187245d81"
+}
+
+variable "AUTO_EDGE_REF" {
+  default = "origin/dev"
 }
 
 variable "VLAD_LATEST_REF" {
@@ -92,7 +96,7 @@ target "auto-latest" {
   }
 }
 
-# AUTOMATIC1111 on stable/pre-Gradio upgrade git commit
+# AUTOMATIC1111 on stable git commit
 target "auto-stable" {
   inherits = ["common"]
   target   = "webui"
@@ -103,6 +107,29 @@ target "auto-stable" {
     REQFILE_NAME     = "requirements_versions.txt"
 
     STABLE_DIFFUSION_REF    = "47b6b607fdd31875c9279cd2f4f16b92e4ea958e"
+    TAMING_TRANSFORMERS_REF = "24268930bf1dce879235a7fddd0b2355b84d7ea6"
+    K_DIFFUSION_REF         = "5b3af030dd83e0297272d861c19477735d0317ec"
+    CODEFORMER_REF          = "c5b4593074ba6214284d6acd5f1719b6c5d739af"
+    BLIP_REF                = "48211a1594f1321b00f14c9f7a5b4813144b2fb9"
+
+    CLIP_INTERROGATOR_REF = "08546eae22d825a23f30669e10025098bb4f9dde"
+    GFPGAN_PKG_REF        = "8d2447a2d918f8eba5a4a01463fd48e45126a379"
+    CLIP_PKG_REF          = "d50d76daa670286dd6cacf3bcd80b5e4823fc8e1"
+    OPENCLIP_PKG_REF      = "bb6e834e9c70d9c27d0dc3ecedeebeaeb1ffad6b"
+  }
+}
+
+# AUTOMATIC1111 on dev branch
+target "auto-edge" {
+  inherits = ["common"]
+  target   = "webui"
+  args = {
+    SD_WEBUI_VARIANT = "edge"
+    SD_WEBUI_REPO    = "https://github.com/AUTOMATIC1111/stable-diffusion-webui.git"
+    SD_WEBUI_REF     = AUTO_EDGE_REF
+    REQFILE_NAME     = "requirements_versions.txt"
+
+    STABLE_DIFFUSION_REF    = "cf1d67a6fd5ea1aa600c4df58e5b47da45f6bdbf"
     TAMING_TRANSFORMERS_REF = "24268930bf1dce879235a7fddd0b2355b84d7ea6"
     K_DIFFUSION_REF         = "5b3af030dd83e0297272d861c19477735d0317ec"
     CODEFORMER_REF          = "c5b4593074ba6214284d6acd5f1719b6c5d739af"
