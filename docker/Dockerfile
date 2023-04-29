@@ -271,7 +271,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
   pip install --no-deps --pre \
     xformers==${XFORMERS_VERSION} \
     triton==${TRITON_VERSION} \
-    bitsandbytes==${BNB_VERSION} \
+    bitsandbytes==${BNB_VERSION}
 
 # Install dependencies
 RUN --mount=type=cache,target=/var/cache/apt apt-get update \
