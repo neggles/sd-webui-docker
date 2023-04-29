@@ -208,7 +208,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 # Install OpenCV and scikit-learn
 RUN --mount=type=cache,target=/root/.cache/pip \
-  pip install -U opencv-python-headless scikit-learn lora
+  pip install -U opencv-python-headless scikit-learn
 
 # Install moviepy and up-to-date tqdm
 RUN --mount=type=cache,target=/root/.cache/pip \
