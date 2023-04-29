@@ -271,7 +271,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
   pip install --no-deps --pre \
     xformers==${XFORMERS_VERSION} \
     triton==${TRITON_VERSION} \
-    bitsandbytes==${BNB_VERSION}
+    bitsandbytes==${BNB_VERSION} \
 
 # Install dependencies
 RUN --mount=type=cache,target=/var/cache/apt apt-get update \
@@ -307,9 +307,15 @@ RUN --mount=type=cache,target=/root/.cache/pip \
   && git reset --hard ${KOHYA_SS_REF} \
   && pip install -r requirements.txt
 
-# Install OpenCV and TensorRT, reinstall bitsandbytes to get latest
+# Install OpenCV and TensorRT, reinstall bitsandbytes to get latest, add Lion optimizer
+ARG LION_VERSION
 RUN --mount=type=cache,target=/root/.cache/pip \
-  pip install -U opencv-python-headless tensorrt bitsandbytes==${BNB_VERSION} wandb
+  pip install -U \
+    opencv-python-headless \
+    wandb \
+    tensorrt \
+    bitsandbytes==${BNB_VERSION} \
+    lion-pytorch==${LION_VERSION}
 
 # Add the rest of the files and replace the entrypoint
 COPY . /docker

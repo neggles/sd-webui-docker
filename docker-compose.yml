@@ -1,7 +1,7 @@
 version: "3.7"
 services:
   webui:
-    image: ghcr.io/neggles/sd-webui-docker:stable
+    image: ghcr.io/neggles/sd-webui-docker:latest
     restart: unless-stopped
     container_name: sd-webui
     build:

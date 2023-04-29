@@ -63,6 +63,7 @@ target "common" {
     XFORMERS_VERSION = "0.0.17"
     BNB_VERSION      = "0.38.1"
     TRITON_VERSION   = "2.0.0.post1"
+    LION_VERSION     = "0.0.7"
   }
   platforms = ["linux/amd64"]
 
