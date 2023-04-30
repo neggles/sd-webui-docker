@@ -99,6 +99,14 @@ jobs:
               type=ref,event=pr,prefix=vlad-
 
     steps:
+      - name: Free disk space
+        id: free-disk-space
+        run: |
+          df -h .
+          sudo find /usr/share/dotnet -delete      # frees 20GB on the runner
+          sudo find /usr/local/lib/android -delete # frees 10GB on the runner
+          df -h .
+
       - name: Checkout
         id: checkout
         uses: actions/checkout@v3
