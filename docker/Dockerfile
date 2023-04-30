@@ -169,7 +169,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 # Install requirements
 ARG REQFILE_NAME
 RUN --mount=type=cache,target=/root/.cache/pip \
-  cd stable-diffusion-webui \
+  cd ${ROOT_DIR} \
   && pip install -r ${REQFILE_NAME}
 
 # Install xformers and triton
@@ -201,9 +201,10 @@ ENV LD_PRELOAD=libtcmalloc.so
 
 # Reupdate the repo to target hash and install deps
 RUN --mount=type=cache,target=/root/.cache/pip \
-  cd stable-diffusion-webui \
+  cd ${ROOT_DIR} \
   && git fetch \
   && git reset --hard ${SD_WEBUI_REF} \
+  && git submodule update --init --recursive \
   && pip install -r ${REQFILE_NAME}
 
 # Install OpenCV and scikit-learn
@@ -298,13 +299,15 @@ ARG KOHYA_SS_REPO
 RUN --mount=type=cache,target=/root/.cache/pip \
   git clone ${KOHYA_SS_REPO} ${ROOT_DIR} \
   && cd ${ROOT_DIR} \
-  && git reset --hard ${KOHYA_SS_REF}
+  && git reset --hard ${KOHYA_SS_REF} \
+  && git submodule update --init --recursive
 
 # Install requirements
 RUN --mount=type=cache,target=/root/.cache/pip \
   cd ${ROOT_DIR} \
   && git fetch \
   && git reset --hard ${KOHYA_SS_REF} \
+  && git submodule update --init --recursive \
   && pip install -r requirements.txt
 
 # Install OpenCV and TensorRT, reinstall bitsandbytes to get latest, add Lion optimizer
