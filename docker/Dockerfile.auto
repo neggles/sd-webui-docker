@@ -1,0 +1,149 @@
+# syntax=docker/dockerfile:1
+
+ARG DEBIAN_FRONTEND=noninteractive
+ARG DEBIAN_PRIORITY=critical
+ARG PIP_PREFER_BINARY=1
+
+FROM alpine/git:2.36.2 as download
+
+# Get bash, set shell
+RUN apk add --no-cache bash
+SHELL [ "/bin/bash", "-ceuxo", "pipefail" ]
+
+# This isn't strictly necessary as it's set upstream, but it's here for clarity
+WORKDIR /git
+
+# Add clone script
+COPY --chown=root:root --chmod=0755 ./clone.sh /root/clone.sh
+
+# Clone repositories
+ARG STABLE_DIFFUSION_REF
+RUN mkdir -p stable-diffusion-stability-ai && \
+  /root/clone.sh stable-diffusion-stability-ai "https://github.com/Stability-AI/stablediffusion.git" "${STABLE_DIFFUSION_REF}" \
+  && cd stable-diffusion-stability-ai \
+  && rm -fr ./assets ./data/**/*.png ./data/**/*.jpg ./data/**/*.gif
+
+ARG TAMING_TRANSFORMERS_REF
+RUN mkdir -p taming-transformers && \
+  /root/clone.sh taming-transformers "https://github.com/CompVis/taming-transformers.git" "${TAMING_TRANSFORMERS_REF}" \
+  && cd taming-transformers \
+  && rm -fr data assets **/*.ipynb
+
+ARG CODEFORMER_REF
+RUN mkdir -p CodeFormer && \
+  /root/clone.sh CodeFormer https://github.com/sczhou/CodeFormer.git ${CODEFORMER_REF} \
+  && cd CodeFormer \
+  && rm -fr data assets **/*.ipynb
+
+ARG BLIP_REF
+RUN /root/clone.sh BLIP https://github.com/salesforce/BLIP.git ${BLIP_REF}
+
+ARG K_DIFFUSION_REF
+RUN /root/clone.sh k-diffusion https://github.com/crowsonkb/k-diffusion.git ${K_DIFFUSION_REF}
+
+ARG CLIP_INTERROGATOR_REF
+RUN /root/clone.sh clip-interrogator https://github.com/pharmapsychotic/clip-interrogator ${CLIP_INTERROGATOR_REF}
+
+# Copy interrogate data to where webui will expect it to be
+RUN rm -fr /git/interrogate \
+  && cp -r /git/repositories/clip-interrogator/clip_interrogator/data /git/interrogate
+
+FROM base AS webui
+
+# set up some important environment variables
+ARG DEBIAN_FRONTEND
+ARG DEBIAN_PRIORITY
+ARG PIP_PREFER_BINARY
+ARG SD_WEBUI_VARIANT
+
+ENV LC_ALL=C.UTF-8
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONIOENCODING=utf-8
+ENV SD_WEBUI_VARIANT=${SD_WEBUI_VARIANT}
+
+# CUDA-related
+ENV CUDA_MODULE_LOADING=LAZY
+ENV SAFETENSORS_FAST_GPU=1
+ENV TORCH_ALLOW_TF32_CUBLAS_OVERRIDE=1
+ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility,graphics
+ENV NVIDIA_REQUIRE_CUDA="cuda>=11.6 driver>=450"
+
+# Where we should put everything
+ENV ROOT_DIR=/stable-diffusion-webui
+
+# Clone actual repo
+ARG SD_WEBUI_REF
+ARG SD_WEBUI_REPO
+RUN --mount=type=cache,target=/root/.cache/pip \
+  git clone ${SD_WEBUI_REPO} ${ROOT_DIR} \
+  && cd ${ROOT_DIR} \
+  && git reset --hard ${SD_WEBUI_REF}
+
+# Install xformers and triton
+ARG XFORMERS_VERSION
+ARG TRITON_VERSION
+RUN --mount=type=cache,target=/root/.cache/pip \
+  pip install --no-deps --pre \
+    xformers==${XFORMERS_VERSION} \
+    triton==${TRITON_VERSION}
+
+# Install requirements
+ARG REQFILE_NAME
+RUN --mount=type=cache,target=/root/.cache/pip \
+  cd ${ROOT_DIR} \
+  && pip install -r ${REQFILE_NAME}
+
+# Grab interrograte data
+COPY --from=download /git ${ROOT_DIR}
+RUN mkdir -p ${ROOT_DIR}/interrogate \
+  && cp -rfv ${ROOT_DIR}/repositories/clip-interrogator/clip_interrogator/data ${ROOT_DIR}/interrogate
+
+# Install requirements for CodeFormer
+RUN --mount=type=cache,target=/root/.cache/pip \
+  pip install -r ${ROOT_DIR}/repositories/CodeFormer/requirements.txt
+
+# Install GFPGAN, CLIP, OPENCLIP and pyngrok
+ARG GFPGAN_PKG_REF
+ARG CLIP_PKG_REF
+ARG OPENCLIP_PKG_REF
+RUN pip install \
+  pyngrok \
+  "git+https://github.com/TencentARC/GFPGAN.git@${GFPGAN_PKG_REF}" \
+  "git+https://github.com/openai/CLIP.git@${CLIP_PKG_REF}" \
+  "git+https://github.com/mlfoundations/open_clip.git@${OPENCLIP_PKG_REF}"
+
+# fix an issue in A1111
+ENV LD_PRELOAD=libtcmalloc.so
+
+# Reupdate the repo to target hash and install deps
+RUN --mount=type=cache,target=/root/.cache/pip \
+  cd ${ROOT_DIR} \
+  && git fetch \
+  && git reset --hard ${SD_WEBUI_REF} \
+  && git submodule update --init --recursive \
+  && pip install -r ${REQFILE_NAME}
+
+# Install OpenCV and scikit-learn
+RUN --mount=type=cache,target=/root/.cache/pip \
+  pip install -U opencv-python-headless scikit-learn
+
+# Install moviepy and up-to-date tqdm
+RUN --mount=type=cache,target=/root/.cache/pip \
+  pip install 'moviepy==1.0.3' 'tqdm>=4.65.0' 'imageio-ffmpeg'
+
+# Add the rest of the files
+COPY . /docker
+COPY ./entrypoint_webui.sh /docker/entrypoint.sh
+
+# Commit high treason
+RUN sed -i 's/in_app_dir = .*/in_app_dir = True/g' /usr/local/lib/python3.10/site-packages/gradio/routes.py
+
+# Set up the entrypoint
+WORKDIR ${ROOT_DIR}
+ENV CLI_ARGS=""
+ENV DATA_DIR=/data
+ENV WEBUI_PORT=7860
+
+EXPOSE ${WEBUI_PORT}
+ENTRYPOINT [ "/docker/entrypoint.sh" ]
+CMD python -u webui.py --listen --port ${WEBUI_PORT} ${CLI_ARGS}

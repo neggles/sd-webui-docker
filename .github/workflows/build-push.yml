@@ -55,7 +55,7 @@ jobs:
 
     strategy:
       fail-fast: false
-      max-parallel: 1
+      max-parallel: 2
       matrix:
         include:
           - name: "AUTOMATIC1111 (Latest)"
@@ -89,7 +89,7 @@ jobs:
               type=ref,event=pr,prefix=stable-
 
           - name: "vladmandic (latest)"
-            target: "vlad"
+            target: "vlad-latest"
             tags: |
               type=raw,value=vlad,enable={{is_default_branch}}
               type=raw,value=vlad-{{date 'YYYYMMDD'}},enable={{is_default_branch}}

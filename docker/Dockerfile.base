@@ -1,0 +1,84 @@
+
+# Build the main image
+FROM python:3.10.11-slim AS base
+
+# Set shell
+SHELL ["/bin/bash", "-ceuxo", "pipefail"]
+
+ARG DEBIAN_FRONTEND
+ARG DEBIAN_PRIORITY
+ARG PIP_PREFER_BINARY
+
+# Install dependencies
+RUN --mount=type=cache,target=/var/cache/apt apt-get update \
+  && apt-get -y install --no-install-recommends \
+    apt-transport-https \
+    apt-utils \
+    build-essential \
+    ca-certificates \
+    curl \
+    fonts-dejavu-core \
+    git \
+    gnupg2 \
+    jq \
+    libgoogle-perftools-dev \
+    moreutils \
+    nano \
+    netbase \
+    pkg-config \
+    procps \
+    rsync \
+    unzip \
+    wget \
+  && apt-get clean
+
+# Get nVidia repo key and add to apt sources
+ARG CUDA_REPO_URL
+ARG CUDA_REPO_KEY
+RUN curl -fsSL ${CUDA_REPO_KEY} \
+    | gpg --dearmor -o /etc/apt/trusted.gpg.d/cuda.gpg \
+  && echo "deb ${CUDA_REPO_URL} /" >/etc/apt/sources.list.d/cuda.list
+
+# enable contrib and non-free repos
+RUN --mount=type=cache,target=/var/cache/apt \
+  sed -i 's/main$/main contrib non-free/' /etc/apt/sources.list \
+  && apt-get update
+
+# add nVidia repo apt pin to prevent kernel driver installation
+COPY cuda-repo-pin /etc/apt/preferences.d/cuda-repo-pin
+
+# PATH
+ENV PATH=$PATH:/usr/local/cuda/bin
+ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64
+
+# Install CUDNN
+ARG CUDA_VERSION
+ARG CUDNN_VERSION
+RUN --mount=type=cache,target=/var/cache/apt \
+  apt-get update \
+  && apt-get -y install --no-install-recommends \
+    libcudnn8=${CUDNN_VERSION}*cuda${CUDA_VERSION} \
+    libcudnn8-dev=${CUDNN_VERSION}*cuda${CUDA_VERSION} \
+  && apt-get clean
+
+# Install other CUDA libraries
+ARG CUDA_RELEASE
+RUN --mount=type=cache,target=/var/cache/apt \
+  apt-get update \
+  && apt-get -y install --no-install-recommends \
+    cuda-libraries-${CUDA_RELEASE} \
+  && apt-get clean
+
+# # Install TensorRT. This doesn't work on Debian yet so it's disabled for now.
+# ARG TENSORRT_VERSION=8.6.0.12-1
+# RUN --mount=type=cache,target=/var/cache/apt \
+#   apt-get update \
+#   && apt-get -y install --no-install-recommends \
+#     tensorrt=${TENSORRT_VERSION}'*' \
+#   && apt-get clean
+
+# Install PyTorch
+ARG TORCH_VERSION
+ARG TORCH_INDEX
+RUN --mount=type=cache,target=/root/.cache/pip \
+    python3 -m pip install torch==${TORCH_VERSION} torchvision --extra-index-url ${TORCH_INDEX}

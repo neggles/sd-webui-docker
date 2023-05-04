@@ -58,7 +58,7 @@ jobs:
       matrix:
         include:
           - name: "Latest"
-            target: "kohya"
+            target: "kohya-latest"
             tags: |
               type=raw,value=latest,enable={{is_default_branch}}
               type=raw,value=latest-{{date 'YYYYMMDD'}},enable={{is_default_branch}}
