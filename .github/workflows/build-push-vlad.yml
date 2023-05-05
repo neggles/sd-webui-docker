@@ -1,5 +1,5 @@
-name: sd-scripts (bmaltais)
-run-name: sd-scripts (via ${{ github.event_name }})
+name: WebUI (vladmandic)
+run-name: vladmandic (via ${{ github.event_name }})
 
 on:
   push:
@@ -9,9 +9,9 @@ on:
     paths:
       - "docker/*"
       - "docker-bake.hcl"
-      - "docker-compose.kohya.yml"
-      - "!docker/entrypoint_webui.sh"
-      - ".github/workflows/build-push-kohya.yml"
+      - "docker-compose.yml"
+      - "!docker/entrypoint_kohya.sh"
+      - ".github/workflows/build-push.yml"
       - "!**.md"
 
   workflow_dispatch:
@@ -24,11 +24,11 @@ on:
 
   pull_request:
     paths:
-      - "docker/*"
+      - "docker/"
       - "docker-bake.hcl"
-      - "docker-compose.kohya.yml"
-      - "!docker/entrypoint_webui.sh"
-      - ".github/workflows/build-push-kohya.yml"
+      - "docker-compose.yml"
+      - "!docker/entrypoint_kohya.sh"
+      - ".github/workflows/build-push.yml"
       - "!**.md"
 
 defaults:
@@ -40,8 +40,9 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  AUTO_STABLE_REF: a9fed7c364061ae6efb37f797b6b522cb3cf7aa2
   IMAGE_REGISTRY: ghcr.io
-  IMAGE_NAME: neggles/kohya-ss-docker
+  IMAGE_NAME: ${{ github.repository }}
   IMAGE_PLATFORMS: "linux/amd64"
 
 jobs:
@@ -57,25 +58,15 @@ jobs:
       max-parallel: 1
       matrix:
         include:
-          - name: "Latest"
-            target: "kohya-latest"
+          - name: "vladmandic (latest)"
+            target: "vlad-latest"
             tags: |
-              type=raw,value=latest,enable={{is_default_branch}}
-              type=raw,value=latest-{{date 'YYYYMMDD'}},enable={{is_default_branch}}
-              type=sha,prefix=latest-,format=short
-              type=ref,event=branch
-              type=ref,event=tag
-              type=ref,event=pr
-
-          - name: "Edge"
-            target: "kohya-edge"
-            tags: |
-              type=raw,value=edge,enable={{is_default_branch}}
-              type=raw,value=edge-{{date 'YYYYMMDD'}},enable={{is_default_branch}}
-              type=sha,prefix=edge-,format=short
-              type=ref,event=branch,prefix=edge-
-              type=ref,event=tag,prefix=edge-
-              type=ref,event=pr,prefix=edge-
+              type=raw,value=vlad,enable={{is_default_branch}}
+              type=raw,value=vlad-{{date 'YYYYMMDD'}},enable={{is_default_branch}}
+              type=sha,prefix=vlad-,format=short
+              type=ref,event=branch,prefix=vlad-
+              type=ref,event=tag,prefix=vlad-
+              type=ref,event=pr,prefix=vlad-
 
     steps:
       - name: Free disk space

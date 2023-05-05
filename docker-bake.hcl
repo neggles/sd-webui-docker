@@ -197,6 +197,14 @@ target "vlad-latest" {
 
     TRITON_VERSION   = "2.0.0.post1"
     XFORMERS_VERSION = "0.0.19"
+
+    STABLE_DIFFUSION_REF    = "cf1d67a6fd5ea1aa600c4df58e5b47da45f6bdbf"
+    TAMING_TRANSFORMERS_REF = "3ba01b241669f5ade541ce990f7650a3b8f65318"
+    K_DIFFUSION_REF         = "b43db16749d51055f813255eea2fdf1def801919"
+    CODEFORMER_REF          = "c5b4593074ba6214284d6acd5f1719b6c5d739af"
+    BLIP_REF                = "48211a1594f1321b00f14c9f7a5b4813144b2fb9"
+
+    CLIP_PKG_REF = "d50d76daa670286dd6cacf3bcd80b5e4823fc8e1"
   }
 }
 

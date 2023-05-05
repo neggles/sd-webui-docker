@@ -76,8 +76,8 @@ ARG XFORMERS_VERSION
 ARG TRITON_VERSION
 RUN --mount=type=cache,target=/root/.cache/pip \
   pip install --no-deps --pre \
-    xformers==${XFORMERS_VERSION} \
-    triton==${TRITON_VERSION}
+  xformers==${XFORMERS_VERSION} \
+  triton==${TRITON_VERSION}
 
 # Install requirements
 ARG REQFILE_NAME
@@ -86,21 +86,18 @@ RUN --mount=type=cache,target=/root/.cache/pip \
   && pip install -r ${REQFILE_NAME}
 
 # Grab repositories from download stage
-COPY --from=download /git ${ROOT_DIR}/repositories
+COPY --from=download /git/* ${ROOT_DIR}/repositories/
 
 # Install requirements for CodeFormer
 RUN --mount=type=cache,target=/root/.cache/pip \
   pip install -r ${ROOT_DIR}/repositories/CodeFormer/requirements.txt
 
-# Install GFPGAN, CLIP, OPENCLIP and pyngrok
-ARG GFPGAN_PKG_REF
+# Install CLIP and pyngrok
 ARG CLIP_PKG_REF
-ARG OPENCLIP_PKG_REF
-RUN pip install \
+RUN --mount=type=cache,target=/root/.cache/pip \
+  pip install \
   pyngrok \
-  "git+https://github.com/TencentARC/GFPGAN.git@${GFPGAN_PKG_REF}" \
-  "git+https://github.com/openai/CLIP.git@${CLIP_PKG_REF}" \
-  "git+https://github.com/mlfoundations/open_clip.git@${OPENCLIP_PKG_REF}"
+  "git+https://github.com/openai/CLIP.git@${CLIP_PKG_REF}"
 
 # fix an issue in A1111
 ENV LD_PRELOAD=libtcmalloc.so
@@ -123,7 +120,12 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 # Add the rest of the files
 COPY . /docker
-COPY ./entrypoint_webui.sh /docker/entrypoint.sh
+COPY ./entrypoint_vlad.sh /docker/entrypoint.sh
+
+# Run the vlad installer
+RUN --mount=type=cache,target=/root/.cache/pip \
+  cd ${ROOT_DIR} \
+  && python -u installer.py
 
 # Commit high treason
 RUN sed -i 's/in_app_dir = .*/in_app_dir = True/g' /usr/local/lib/python3.10/site-packages/gradio/routes.py
