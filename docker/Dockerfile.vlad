@@ -16,29 +16,29 @@ WORKDIR /git
 # Clone repositories
 ARG STABLE_DIFFUSION_REPO=https://github.com/Stability-AI/stablediffusion.git
 ARG STABLE_DIFFUSION_REF
-RUN git clone --recursive --depth=1 --branch "${STABLE_DIFFUSION_REPO}" "${STABLE_DIFFUSION_REF}" "stablediffusion" \
+RUN git clone --recursive --depth=1 --branch="${STABLE_DIFFUSION_REPO}" "${STABLE_DIFFUSION_REF}" "stablediffusion" \
   && cd "stablediffusion" \
   && rm -fr assets data/**/*.png data/**/*.jpg data/**/*.gif
 
 ARG TAMING_TRANSFORMERS_REPO=https://github.com/CompVis/taming-transformers.git
 ARG TAMING_TRANSFORMERS_REF
-RUN git clone --recursive --depth=1 --branch "${TAMING_TRANSFORMERS_REF}" "${TAMING_TRANSFORMERS_REPO}" "taming-transformers" \
+RUN git clone --recursive --depth=1 --branch="${TAMING_TRANSFORMERS_REF}" "${TAMING_TRANSFORMERS_REPO}" "taming-transformers" \
   && cd "taming-transformers" \
   && rm -fr data assets **/*.ipynb
 
 ARG K_DIFFUSION_REPO=https://github.com/crowsonkb/k-diffusion.git
 ARG K_DIFFUSION_REF
-RUN git clone --recursive --depth=1 --branch "${K_DIFFUSION_REF}" "${K_DIFFUSION_REPO}" "k-diffusion"
+RUN git clone --recursive --depth=1 --branch="${K_DIFFUSION_REF}" "${K_DIFFUSION_REPO}" "k-diffusion"
 
 ARG CODEFORMER_REPO=https://github.com/sczhou/CodeFormer.git
 ARG CODEFORMER_REF
-RUN git clone --recursive --depth=1 --branch "${CODEFORMER_REF}" "${CODEFORMER_REPO}" "CodeFormer" \
+RUN git clone --recursive --depth=1 --branch="${CODEFORMER_REF}" "${CODEFORMER_REPO}" "CodeFormer" \
   && cd "CodeFormer" \
   && rm -fr data assets **/*.ipynb
 
 ARG BLIP_REPO=https://github.com/salesforce/BLIP.git
 ARG BLIP_REF
-RUN git clone --recursive --depth=1 --branch "${BLIP_REF}" "${BLIP_REPO}" "BLIP"
+RUN git clone --recursive --depth=1 --branch="${BLIP_REF}" "${BLIP_REPO}" "BLIP"
 
 FROM base AS vlad
 
