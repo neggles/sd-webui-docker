@@ -63,9 +63,9 @@ jobs:
               type=raw,value=latest,enable={{is_default_branch}}
               type=raw,value=latest-{{date 'YYYYMMDD'}},enable={{is_default_branch}}
               type=sha,prefix=latest-,format=short
-              type=ref,event=branch
-              type=ref,event=tag
-              type=ref,event=pr
+              type=ref,event=branch,prefix=latest-
+              type=ref,event=tag,prefix=latest-
+              type=ref,event=pr,prefix=latest-
 
           - name: "Edge"
             target: "kohya-edge"

@@ -63,17 +63,17 @@ jobs:
             tags: |
               type=raw,value=latest,enable={{is_default_branch}}
               type=raw,value=latest-{{date 'YYYYMMDD'}},enable={{is_default_branch}}
-              type=sha,prefix=latest-,format=short
-              type=ref,event=branch
-              type=ref,event=tag
-              type=ref,event=pr
+              type=sha,format=short,prefix=latest-
+              type=ref,event=branch,prefix=latest-
+              type=ref,event=tag,prefix=latest-
+              type=ref,event=pr,prefix=latest-
 
           - name: "AUTOMATIC1111 (Edge)"
             target: "auto-edge"
             tags: |
               type=raw,value=edge,enable={{is_default_branch}}
               type=raw,value=edge-{{date 'YYYYMMDD'}},enable={{is_default_branch}}
-              type=sha,prefix=edge-,format=short
+              type=sha,format=short,prefix=edge-
               type=ref,event=branch,prefix=edge-
               type=ref,event=tag,prefix=edge-
               type=ref,event=pr,prefix=edge-
@@ -83,20 +83,10 @@ jobs:
             tags: |
               type=raw,value=stable,enable={{is_default_branch}}
               type=raw,value=stable-{{date 'YYYYMMDD'}},enable={{is_default_branch}}
-              type=sha,prefix=stable-,format=short
+              type=sha,format=short,prefix=stable-
               type=ref,event=branch,prefix=stable-
               type=ref,event=tag,prefix=stable-
               type=ref,event=pr,prefix=stable-
-
-          - name: "vladmandic (latest)"
-            target: "vlad-latest"
-            tags: |
-              type=raw,value=vlad,enable={{is_default_branch}}
-              type=raw,value=vlad-{{date 'YYYYMMDD'}},enable={{is_default_branch}}
-              type=sha,prefix=vlad-,format=short
-              type=ref,event=branch,prefix=vlad-
-              type=ref,event=tag,prefix=vlad-
-              type=ref,event=pr,prefix=vlad-
 
     steps:
       - name: Free disk space
