@@ -49,7 +49,7 @@ if [[ "${SD_WEBUI_VARIANT}" == "vlad" ]]; then
         if [[ -d "${data_dir}/config/auto" ]]; then
             echo "Found existing AUTOMATIC1111 config, copying to vlad config"
             cp -au "${data_dir}/config/auto" "${data_dir}/config/vlad"
-            echo "Purgeing extensions from vlad config (most are built-in and copying breaks them)"
+            echo "Purging extensions from vlad config (most are built-in and copying breaks them)"
             rm -fr "${data_dir}/config/vlad/extensions"
         fi
         echo "Configuration ready."
