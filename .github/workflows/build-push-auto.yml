@@ -11,7 +11,8 @@ on:
       - "docker-bake.hcl"
       - "docker-compose.yml"
       - "!docker/entrypoint_kohya.sh"
-      - ".github/workflows/build-push.yml"
+      - "!docker/entrypoint_vlad.sh"
+      - ".github/workflows/build-push-auto.yml"
       - "!**.md"
 
   workflow_dispatch:
@@ -28,7 +29,8 @@ on:
       - "docker-bake.hcl"
       - "docker-compose.yml"
       - "!docker/entrypoint_kohya.sh"
-      - ".github/workflows/build-push.yml"
+      - "!docker/entrypoint_vlad.sh"
+      - ".github/workflows/build-push-auto.yml"
       - "!**.md"
 
 defaults:
