@@ -1,5 +1,5 @@
-name: WebUI Docker Build
-run-name: WebUI Build (${{ github.event_name }})
+name: WebUI (AUTOMATIC1111)
+run-name: AUTOMATIC1111 (via ${{ github.event_name }})
 
 on:
   push:
@@ -55,7 +55,7 @@ jobs:
 
     strategy:
       fail-fast: false
-      max-parallel: 2
+      max-parallel: 1
       matrix:
         include:
           - name: "AUTOMATIC1111 (Latest)"
