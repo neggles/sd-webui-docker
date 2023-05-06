@@ -4,6 +4,9 @@
 # container configs
 /config
 
+# misc data
+/misc
+
 # webui container
 /BLIP
 /BSRGAN

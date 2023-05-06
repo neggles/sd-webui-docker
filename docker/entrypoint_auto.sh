@@ -125,7 +125,8 @@ for tgt_path in "${!file_map[@]}"; do
 done
 
 # Copy scripts individually to avoid purging the directory
-cp -vrfTs "${config_dir}/scripts/" "${repo_root}/scripts/" || true
+echo 'Copying scripts (if present): '
+cp -vrfTs "${config_dir}"/scripts/*.py "${repo_root}/scripts/" || true
 
 # Set git config so it won't warn and confuse the webui
 git config --global pull.ff only
