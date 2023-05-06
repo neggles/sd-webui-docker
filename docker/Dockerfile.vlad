@@ -27,8 +27,8 @@ ARG TAMING_TRANSFORMERS_REPO=https://github.com/CompVis/taming-transformers.git
 ARG TAMING_TRANSFORMERS_REF
 RUN git clone --depth=1 "${TAMING_TRANSFORMERS_REPO}" "taming-transformers" \
   && cd "taming-transformers" \
-  && git fetch --depth=1 origin "${STABLE_DIFFUSION_REF}" \
-  && git reset --hard "${STABLE_DIFFUSION_REF}" \
+  && git fetch --depth=1 origin "${TAMING_TRANSFORMERS_REF}" \
+  && git reset --hard "${TAMING_TRANSFORMERS_REF}" \
   && git submodule update --init --recursive \
   && rm -fr data assets **/*.ipynb
 
