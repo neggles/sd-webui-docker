@@ -104,6 +104,7 @@ $RECYCLE.BIN/
 /docker-compose.override.yml
 /docker-compose.override.yaml
 !/docker-compose.kohya.yml
+!/docker-compose.vlad.yml
 !/docker-compose.*.example.yml
 
 # Excluding this to allow for a local copy of the repo for extension dev
