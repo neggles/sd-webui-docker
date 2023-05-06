@@ -1,4 +1,4 @@
-
+# syntax=docker/dockerfile:1
 # Build the main image
 FROM python:3.10.11-slim AS base
 
