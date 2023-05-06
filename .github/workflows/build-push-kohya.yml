@@ -7,11 +7,13 @@ on:
       - "main"
       - "release"
     paths:
-      - "docker/*"
       - "docker-bake.hcl"
-      - "docker-compose.kohya.yml"
-      - "!docker/entrypoint_auto.sh"
-      - "!docker/entrypoint_vlad.sh"
+      - "docker-compose.yml"
+      - "docker/Dockerfile.base"
+      - "docker/Dockerfile.kohya"
+      - "docker/entrypoint_kohya.sh"
+      - "docker/*kohya*"
+      - "docker/config.json"
       - ".github/workflows/build-push-kohya.yml"
       - "!**.md"
 
@@ -25,11 +27,13 @@ on:
 
   pull_request:
     paths:
-      - "docker/*"
       - "docker-bake.hcl"
-      - "docker-compose.kohya.yml"
-      - "!docker/entrypoint_auto.sh"
-      - "!docker/entrypoint_vlad.sh"
+      - "docker-compose.yml"
+      - "docker/Dockerfile.base"
+      - "docker/Dockerfile.kohya"
+      - "docker/entrypoint_kohya.sh"
+      - "docker/*kohya*"
+      - "docker/config.json"
       - ".github/workflows/build-push-kohya.yml"
       - "!**.md"
 

@@ -7,11 +7,13 @@ on:
       - "main"
       - "release"
     paths:
-      - "docker/*"
       - "docker-bake.hcl"
       - "docker-compose.yml"
-      - "!docker/entrypoint_kohya.sh"
-      - "!docker/entrypoint_vlad.sh"
+      - "docker/Dockerfile.base"
+      - "docker/Dockerfile.auto"
+      - "docker/entrypoint_auto.sh"
+      - "docker/*auto*"
+      - "docker/config.json"
       - ".github/workflows/build-push-auto.yml"
       - "!**.md"
 
@@ -25,11 +27,13 @@ on:
 
   pull_request:
     paths:
-      - "docker/"
       - "docker-bake.hcl"
       - "docker-compose.yml"
-      - "!docker/entrypoint_kohya.sh"
-      - "!docker/entrypoint_vlad.sh"
+      - "docker/Dockerfile.base"
+      - "docker/Dockerfile.auto"
+      - "docker/entrypoint_auto.sh"
+      - "docker/*auto*"
+      - "docker/config.json"
       - ".github/workflows/build-push-auto.yml"
       - "!**.md"
 
@@ -42,7 +46,6 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  AUTO_STABLE_REF: a9fed7c364061ae6efb37f797b6b522cb3cf7aa2
   IMAGE_REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
   IMAGE_PLATFORMS: "linux/amd64"
