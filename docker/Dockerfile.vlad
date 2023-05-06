@@ -16,29 +16,46 @@ WORKDIR /git
 # Clone repositories
 ARG STABLE_DIFFUSION_REPO=https://github.com/Stability-AI/stablediffusion.git
 ARG STABLE_DIFFUSION_REF
-RUN git clone --recursive --depth=1 --branch "${STABLE_DIFFUSION_REF}" "${STABLE_DIFFUSION_REPO}" "stablediffusion" \
+RUN git clone --depth=1 "${STABLE_DIFFUSION_REPO}" "stablediffusion" \
   && cd "stablediffusion" \
+  && git fetch --depth=1 origin "${STABLE_DIFFUSION_REF}" \
+  && git reset --hard "${STABLE_DIFFUSION_REF}" \
+  && git submodule update --init --recursive \
   && rm -fr assets data/**/*.png data/**/*.jpg data/**/*.gif
 
 ARG TAMING_TRANSFORMERS_REPO=https://github.com/CompVis/taming-transformers.git
 ARG TAMING_TRANSFORMERS_REF
-RUN git clone --recursive --depth=1 --branch "${TAMING_TRANSFORMERS_REF}" "${TAMING_TRANSFORMERS_REPO}" "taming-transformers" \
+RUN git clone --depth=1 "${TAMING_TRANSFORMERS_REPO}" "taming-transformers" \
   && cd "taming-transformers" \
+  && git fetch --depth=1 origin "${STABLE_DIFFUSION_REF}" \
+  && git reset --hard "${STABLE_DIFFUSION_REF}" \
+  && git submodule update --init --recursive \
   && rm -fr data assets **/*.ipynb
 
 ARG K_DIFFUSION_REPO=https://github.com/crowsonkb/k-diffusion.git
 ARG K_DIFFUSION_REF
-RUN git clone --recursive --depth=1 --branch "${K_DIFFUSION_REF}" "${K_DIFFUSION_REPO}" "k-diffusion"
+RUN git clone --depth=1 "${K_DIFFUSION_REPO}" "k-diffusion" \
+  && cd "k-diffusion" \
+  && git fetch --depth=1 origin "${K_DIFFUSION_REF}" \
+  && git reset --hard "${K_DIFFUSION_REF}" \
+  && git submodule update --init --recursive
 
 ARG CODEFORMER_REPO=https://github.com/sczhou/CodeFormer.git
 ARG CODEFORMER_REF
-RUN git clone --recursive --depth=1 --branch "${CODEFORMER_REF}" "${CODEFORMER_REPO}" "CodeFormer" \
+RUN git clone --depth=1 "${CODEFORMER_REPO}" "CodeFormer" \
   && cd "CodeFormer" \
+  && git fetch --depth=1 origin "${CODEFORMER_REF}" \
+  && git reset --hard "${CODEFORMER_REF}" \
+  && git submodule update --init --recursive \
   && rm -fr data assets **/*.ipynb
 
 ARG BLIP_REPO=https://github.com/salesforce/BLIP.git
 ARG BLIP_REF
-RUN git clone --recursive --depth=1 --branch "${BLIP_REF}" "${BLIP_REPO}" "BLIP"
+RUN git clone --depth=1 "${BLIP_REPO}" "BLIP" \
+  && cd "BLIP" \
+  && git fetch --depth=1 origin "${BLIP_REF}" \
+  && git reset --hard "${BLIP_REF}" \
+  && git submodule update --init --recursive
 
 FROM base AS vlad
 
