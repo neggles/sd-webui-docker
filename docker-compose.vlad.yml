@@ -1,0 +1,24 @@
+version: "3.7"
+services:
+  webui:
+    image: ghcr.io/neggles/sd-webui-docker:vlad
+    restart: unless-stopped
+    container_name: sd-webui
+    environment:
+      CLI_ARGS: "--allow-code --enable-insecure-extension-access --api --xformers --opt-channelslast"
+      # make TQDM behave a little better
+      PYTHONUNBUFFERED: "1"
+      TERM: "${TERM}"
+    ports:
+      - mode: ingress
+        target: 7860
+        published: 7860
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: ./data
+        target: /data
+      - type: bind
+        source: ./output
+        target: /output
+
