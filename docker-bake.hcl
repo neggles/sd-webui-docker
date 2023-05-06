@@ -40,7 +40,7 @@ variable "CUDA_VERSION" {
 }
 
 variable "TORCH_VERSION" {
-  default = "2.0.0+cu118"
+  default = "2.0.1+cu118"
 }
 
 variable "TORCH_INDEX" {
