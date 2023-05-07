@@ -59,8 +59,9 @@ else
     config_dir="${data_dir}/config/auto"
 fi
 
-path_map["${repo_root}/extensions"]="${config_dir}/extensions"
 path_map["${repo_root}/.vscode"]="${config_dir}/.vscode"
+path_map["${repo_root}/extensions"]="${config_dir}/extensions"
+path_map["${repo_root}/config_states"]="${config_dir}/config_states"
 # scripts we can't symlink because of gradio security reasons
 #path_map["${repo_root}/scripts"]="${config_dir}/auto/scripts"
 
