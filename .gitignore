@@ -109,3 +109,6 @@ $RECYCLE.BIN/
 
 # Excluding this to allow for a local copy of the repo for extension dev
 /stable-diffusion-webui/
+
+# direnv
+/.envrc
