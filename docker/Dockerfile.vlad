@@ -103,7 +103,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
   && pip install -r ${REQFILE_NAME}
 
 # Grab repositories from download stage
-COPY --from=download /git/* ${ROOT_DIR}/repositories/
+COPY --from=download /git/ ${ROOT_DIR}/repositories/
 
 # Install requirements for CodeFormer
 RUN --mount=type=cache,target=/root/.cache/pip \
