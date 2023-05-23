@@ -16,6 +16,8 @@ on:
       - "docker/config.json"
       - ".github/workflows/build-push-vlad.yml"
       - "!**.md"
+  schedule:
+    - cron: "0 0 * * *"
 
   workflow_dispatch:
     inputs:
@@ -134,6 +136,6 @@ jobs:
           files: |
             ./docker-bake.hcl
             ${{ steps.meta.outputs.bake-file }}
-          push: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || inputs.force-push }}
+          push: ${{ ((github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/main') || inputs.force-push }}
           set: |
             *.cache-from=type=gha
