@@ -77,6 +77,11 @@ RUN --mount=type=cache,target=/var/cache/apt \
 #     tensorrt=${TENSORRT_VERSION}'*' \
 #   && apt-get clean
 
+# Update pip and wheel, but *not* setuptools. debian setuptools has some
+# modifications & replacing it with a pypi one breaks things
+RUN --mount=type=cache,target=/root/.cache/pip \
+    python3 -m pip install -U pip wheel
+
 # Install PyTorch
 ARG TORCH_VERSION
 ARG TORCH_INDEX
