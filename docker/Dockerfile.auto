@@ -123,9 +123,20 @@ RUN --mount=type=cache,target=/root/.cache/pip \
   && git submodule update --init --recursive \
   && pip install -r ${REQFILE_NAME}
 
-# Install OpenCV and scikit-learn
+# Install extra packages needed for extensions
 RUN --mount=type=cache,target=/root/.cache/pip \
-  pip install -U opencv-python-headless scikit-learn
+  pip install \
+    opencv-python-headless \
+    scikit-learn \
+    diffusers \
+    accelerate \
+    ffmpeg-python \
+    imageio_ffmpeg \
+    moviepy \
+    natsort \
+    scenedetect \
+    segment-anything \
+    segmentation-refinement
 
 # Install moviepy and up-to-date tqdm
 RUN --mount=type=cache,target=/root/.cache/pip \
