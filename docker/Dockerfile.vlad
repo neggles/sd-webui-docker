@@ -166,4 +166,4 @@ ENV WEBUI_PORT=7860
 
 EXPOSE ${WEBUI_PORT}
 ENTRYPOINT [ "/docker/entrypoint.sh" ]
-CMD python -u webui.py --listen --port ${WEBUI_PORT} ${CLI_ARGS}
+CMD python -u launch.py --listen --port ${WEBUI_PORT} ${CLI_ARGS}
