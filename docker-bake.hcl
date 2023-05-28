@@ -12,15 +12,15 @@ variable "IMAGE_NAME" {
 }
 
 variable "AUTO_STABLE_REF" {
-  default = "a9fed7c364061ae6efb37f797b6b522cb3cf7aa2"
-}
-
-variable "AUTO_LATEST_REF" {
   default = "22bcc7be428c94e9408f589966c2040187245d81"
 }
 
-variable "AUTO_EDGE_REF" {
+variable "AUTO_LATEST_REF" {
   default = "origin/master"
+}
+
+variable "AUTO_EDGE_REF" {
+  default = "origin/dev"
 }
 
 variable "VLAD_LATEST_REF" {
