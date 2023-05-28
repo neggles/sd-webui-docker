@@ -87,3 +87,7 @@ ARG TORCH_VERSION
 ARG TORCH_INDEX
 RUN --mount=type=cache,target=/root/.cache/pip \
     python3 -m pip install torch==${TORCH_VERSION} torchvision --extra-index-url ${TORCH_INDEX}
+
+# add the nVidia python index
+RUN --mount=type=cache,target=/root/.cache/pip \
+    python3 -m pip install nvidia-pyindex
