@@ -65,16 +65,6 @@ jobs:
       max-parallel: 1
       matrix:
         include:
-          - name: "Latest"
-            target: "auto-latest"
-            tags: |
-              type=raw,value=latest,enable={{is_default_branch}}
-              type=raw,value=latest-{{date 'YYYYMMDD'}},enable={{is_default_branch}}
-              type=sha,format=short,prefix=latest-
-              type=ref,event=branch,prefix=latest-
-              type=ref,event=tag,prefix=latest-
-              type=ref,event=pr,prefix=latest-
-
           - name: "Edge"
             target: "auto-edge"
             tags: |
@@ -84,6 +74,16 @@ jobs:
               type=ref,event=branch,prefix=edge-
               type=ref,event=tag,prefix=edge-
               type=ref,event=pr,prefix=edge-
+
+          - name: "Latest"
+            target: "auto-latest"
+            tags: |
+              type=raw,value=latest,enable={{is_default_branch}}
+              type=raw,value=latest-{{date 'YYYYMMDD'}},enable={{is_default_branch}}
+              type=sha,format=short,prefix=latest-
+              type=ref,event=branch,prefix=latest-
+              type=ref,event=tag,prefix=latest-
+              type=ref,event=pr,prefix=latest-
 
           - name: "Stable"
             target: "auto-stable"
