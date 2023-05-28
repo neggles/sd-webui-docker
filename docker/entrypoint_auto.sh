@@ -24,6 +24,8 @@ path_map["${repo_root}/models/midas"]="${data_dir}/MiDaS"
 path_map["${repo_root}/models/Lora"]="${data_dir}/Lora"
 path_map["${repo_root}/models/LyCORIS"]="${data_dir}/Lora"
 path_map["${repo_root}/models/openpose"]="${data_dir}/openpose"
+path_map["${repo_root}/models/Unet-onnx"]="${data_dir}/Unet-onnx"
+path_map["${repo_root}/models/Unet-trt"]="${data_dir}/Unet-trt"
 
 # extra hack for CodeFormer
 path_map["${repo_root}/repositories/CodeFormer/weights/facelib"]="${data_dir}/.cache"

@@ -88,8 +88,8 @@ jobs:
         id: free-disk-space
         run: |
           df -h .
-          sudo find /usr/share/dotnet -delete      # frees 20GB on the runner
-          sudo find /usr/local/lib/android -delete # frees 10GB on the runner
+          sudo find /usr/share/dotnet -delete
+          sudo find /usr/local/lib/android -delete
           df -h .
 
       - name: Checkout
