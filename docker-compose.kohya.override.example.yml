@@ -11,7 +11,7 @@ services:
       PYTORCH_CUDA_ALLOC_CONF: "garbage_collection_threshold:0.96,max_split_size_mb:512"
       # other CUDA-related options
       TORCH_CUDNN_V8_API_ENABLED: "1"
-      CUDA_MODULE_LOADING: "lazy"
+      CUDA_MODULE_LOADING: "LAZY"
       USE_EXPERIMENTAL_CUDNN_V8_API: 1
     # may help if you're using Accelerate
     ipc: host
