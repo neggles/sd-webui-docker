@@ -54,7 +54,7 @@ env:
 
 jobs:
   build:
-    name: Build (CUDA)
+    name: Build
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -65,7 +65,7 @@ jobs:
       max-parallel: 1
       matrix:
         include:
-          - name: "vladmandic (latest)"
+          - name: "Latest"
             target: "vlad-latest"
             tags: |
               type=raw,value=vlad,enable={{is_default_branch}}

@@ -54,7 +54,7 @@ env:
 
 jobs:
   build:
-    name: Build (CUDA)
+    name: Build
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -65,7 +65,7 @@ jobs:
       max-parallel: 1
       matrix:
         include:
-          - name: "AUTOMATIC1111 (Latest)"
+          - name: "Latest"
             target: "auto-latest"
             tags: |
               type=raw,value=latest,enable={{is_default_branch}}
@@ -75,7 +75,7 @@ jobs:
               type=ref,event=tag,prefix=latest-
               type=ref,event=pr,prefix=latest-
 
-          - name: "AUTOMATIC1111 (Edge)"
+          - name: "Edge"
             target: "auto-edge"
             tags: |
               type=raw,value=edge,enable={{is_default_branch}}
@@ -85,7 +85,7 @@ jobs:
               type=ref,event=tag,prefix=edge-
               type=ref,event=pr,prefix=edge-
 
-          - name: "AUTOMATIC1111 (Stable)"
+          - name: "Stable"
             target: "auto-stable"
             tags: |
               type=raw,value=stable,enable={{is_default_branch}}
