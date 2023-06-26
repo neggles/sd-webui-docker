@@ -211,6 +211,7 @@ target "vlad-latest" {
 # bmaltais/kohya_ss training repo
 target "kohya-latest" {
   inherits   = ["common", "docker-metadata-action"]
+  context    = "./kohya"
   dockerfile = "Dockerfile.kohya"
   target     = "kohya"
   contexts = {
@@ -225,6 +226,7 @@ target "kohya-latest" {
 # bmaltais/kohya_ss training repo
 target "kohya-edge" {
   inherits   = ["common", "docker-metadata-action"]
+  context    = "./kohya"
   dockerfile = "Dockerfile.kohya"
   target     = "kohya"
   contexts = {
