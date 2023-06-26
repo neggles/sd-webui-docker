@@ -38,14 +38,16 @@ ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64
 ARG XFORMERS_VERSION
 ARG TRITON_VERSION
 ARG BNB_VERSION
-RUN --mount=type=cache,target=/root/.cache/pip \
+RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
   pip install --no-deps --pre \
     xformers==${XFORMERS_VERSION} \
     triton==${TRITON_VERSION} \
     bitsandbytes==${BNB_VERSION}
 
 # Install dependencies
-RUN --mount=type=cache,target=/var/cache/apt apt-get update \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+  apt-get update \
   && apt-get -y install --no-install-recommends \
     python3-tk \
     ffmpeg \
@@ -56,7 +58,8 @@ RUN --mount=type=cache,target=/var/cache/apt apt-get update \
 
 # Install other CUDA libraries
 ARG CUDA_RELEASE
-RUN --mount=type=cache,target=/var/cache/apt \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
   apt-get update \
   && apt-get -y install --no-install-recommends \
     cuda-libraries-dev-${CUDA_RELEASE} \
@@ -66,14 +69,14 @@ RUN --mount=type=cache,target=/var/cache/apt \
 # Clone the repo
 ARG KOHYA_SS_REF
 ARG KOHYA_SS_REPO
-RUN --mount=type=cache,target=/root/.cache/pip \
+RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
   git clone ${KOHYA_SS_REPO} ${ROOT_DIR} \
   && cd ${ROOT_DIR} \
   && git reset --hard ${KOHYA_SS_REF} \
   && git submodule update --init --recursive
 
 # Install requirements
-RUN --mount=type=cache,target=/root/.cache/pip \
+RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
   cd ${ROOT_DIR} \
   && git fetch \
   && git reset --hard ${KOHYA_SS_REF} \
@@ -82,7 +85,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 # Install OpenCV and TensorRT, reinstall bitsandbytes to get latest, add Lion optimizer
 ARG LION_VERSION
-RUN --mount=type=cache,target=/root/.cache/pip \
+RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
   pip install -U \
     opencv-python-headless \
     wandb \
@@ -90,8 +93,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     bitsandbytes==${BNB_VERSION} \
     lion-pytorch==${LION_VERSION}
 
-# Add the rest of the files and replace the entrypoint
-COPY . /docker
+# Drop in entrypoint
 COPY ./entrypoint_kohya.sh /docker/entrypoint.sh
 
 # Set up the entrypoint

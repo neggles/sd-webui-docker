@@ -59,6 +59,11 @@ ARG SD_WEBUI_VARIANT
 ENV LC_ALL=C.UTF-8
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONIOENCODING=utf-8
+
+# make pip STFU about being root
+ENV PIP_ROOT_USER_ACTION=ignore
+
+# variant for later use
 ENV SD_WEBUI_VARIANT=${SD_WEBUI_VARIANT}
 
 # CUDA-related
@@ -74,7 +79,7 @@ ENV ROOT_DIR=/stable-diffusion-webui
 # Clone actual repo
 ARG SD_WEBUI_REF
 ARG SD_WEBUI_REPO
-RUN --mount=type=cache,target=/root/.cache/pip \
+RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
   git clone ${SD_WEBUI_REPO} ${ROOT_DIR} \
   && cd ${ROOT_DIR} \
   && git reset --hard ${SD_WEBUI_REF}
@@ -82,14 +87,14 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 # Install xformers and triton
 ARG XFORMERS_VERSION
 ARG TRITON_VERSION
-RUN --mount=type=cache,target=/root/.cache/pip \
+RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
   pip install --no-deps --pre \
     xformers==${XFORMERS_VERSION} \
     triton==${TRITON_VERSION}
 
 # Install requirements
 ARG REQFILE_NAME
-RUN --mount=type=cache,target=/root/.cache/pip \
+RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
   cd ${ROOT_DIR} \
   && pip install -r ${REQFILE_NAME}
 
@@ -99,7 +104,7 @@ RUN mkdir -p ${ROOT_DIR}/interrogate \
   && cp -rfv ${ROOT_DIR}/repositories/clip-interrogator/clip_interrogator/data ${ROOT_DIR}/interrogate
 
 # Install requirements for CodeFormer
-RUN --mount=type=cache,target=/root/.cache/pip \
+RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
   pip install -r ${ROOT_DIR}/repositories/CodeFormer/requirements.txt
 
 # Install GFPGAN, CLIP, OPENCLIP and pyngrok
@@ -116,7 +121,7 @@ RUN pip install \
 ENV LD_PRELOAD=libtcmalloc.so
 
 # Reupdate the repo to target hash and install deps
-RUN --mount=type=cache,target=/root/.cache/pip \
+RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
   cd ${ROOT_DIR} \
   && git fetch \
   && git reset --hard ${SD_WEBUI_REF} \
@@ -124,7 +129,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
   && pip install -r ${REQFILE_NAME}
 
 # Install extra packages needed for extensions
-RUN --mount=type=cache,target=/root/.cache/pip \
+RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
   pip install \
     opencv-python-headless \
     scikit-learn \
@@ -139,7 +144,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     segmentation-refinement
 
 # Install moviepy and up-to-date tqdm
-RUN --mount=type=cache,target=/root/.cache/pip \
+RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
   pip install 'moviepy==1.0.3' 'tqdm>=4.65.0' 'imageio-ffmpeg'
 
 # Add the rest of the files

@@ -5,23 +5,20 @@ services:
     # image: ghcr.io/neggles/sd-webui-docker:latest
     environment:
       ## passing some extra args and env vars to the container
-      CLI_ARGS: "--allow-code --enable-insecure-extension-access --api --no-half-vae --opt-channelslast --opt-sdp-attention"
+      CLI_ARGS: "--allow-code --enable-insecure-extension-access --api --opt-channelslast --opt-sdp-attention"
       ## or use this for xformers
-      # CLI_ARGS: "--allow-code --enable-insecure-extension-access --api --no-half-vae --opt-channelslast --xformers"
+      # CLI_ARGS: "--allow-code --enable-insecure-extension-access --api --opt-channelslast --xformers"
       ## set up CUDA garbage collection
       PYTORCH_CUDA_ALLOC_CONF: "garbage_collection_threshold:0.9,max_split_size_mb:512"
       ## other CUDA-related options. Enabling these may speed things up or break things, YMMV
       # ACCELERATE: "true"
-      TF_CPP_MIN_LOG_LEVEL: "2"
-      CUDA_LAUNCH_BLOCKING: "0"
-      CUDA_CACHE_DISABLE: "0"
-      CUDA_AUTO_BOOST: "1"
       CUDA_MODULE_LOADING: "LAZY"
-      CUDA_DEVICE_DEFAULT_PERSISTING_L2_CACHE_PERCENTAGE_LIMIT: "0"
       SAFETENSORS_FAST_GPU: "1"
       NUMEXPR_MAX_THREADS: "16"
+      # nVidia still sets these in NGC containers, so may as well
       TORCH_CUDNN_V8_API_ENABLED: "1"
       TORCH_ALLOW_TF32_CUBLAS_OVERRIDE: "1"
+      USE_EXPERIMENTAL_CUDNN_V8_API: "1"
     ## may help if you're using Accelerate
     ipc: host
     ## Set which GPU/GPUs to attach to the container
