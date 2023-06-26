@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # Build the main image
-FROM python:3.10-slim AS base
+FROM python:3.10-bookworm AS base
 
 # Set shell
 SHELL ["/bin/bash", "-ceuxo", "pipefail"]
