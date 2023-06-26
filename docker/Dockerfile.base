@@ -61,7 +61,7 @@ RUN curl -fsSL ${CUDA_REPO_KEY} \
 # enable contrib and non-free repos
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
-  sed -i 's/main$/main contrib non-free/' /etc/apt/sources.list \
+  sed -i 's/Components: main$/Components: main contrib non-free/' /etc/apt/sources.list.d/debian.sources \
   && apt-get update
 
 # add nVidia repo apt pin to prevent kernel driver installation
