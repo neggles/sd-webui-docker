@@ -131,7 +131,7 @@ RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
 # Install extra packages needed for extensions
 RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
   pip install \
-    opencv-python-headless \
+    opencv-contrib-python-headless \
     scikit-learn \
     diffusers \
     accelerate \
