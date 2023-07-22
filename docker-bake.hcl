@@ -36,7 +36,7 @@ variable "KOHYA_EDGE_REF" {
 }
 
 variable "CUDA_VERSION" {
-  default = "12.0"
+  default = "12.1"
 }
 
 variable "TORCH_VERSION" {
