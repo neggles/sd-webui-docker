@@ -44,6 +44,10 @@ RUN /root/clone.sh k-diffusion https://github.com/crowsonkb/k-diffusion.git ${K_
 ARG CLIP_INTERROGATOR_REF
 RUN /root/clone.sh clip-interrogator https://github.com/pharmapsychotic/clip-interrogator ${CLIP_INTERROGATOR_REF}
 
+ARG STABLE_DIFFUSION_XL_REF
+RUN mkdir -p generative-models && \
+  /root/clone.sh generative-models "https://github.com/Stability-AI/generative-models.git" "${STABLE_DIFFUSION_XL_REF}"
+
 # Copy interrogate data to where webui will expect it to be
 RUN rm -fr /git/interrogate \
   && cp -r /git/repositories/clip-interrogator/clip_interrogator/data /git/interrogate
