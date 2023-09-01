@@ -85,16 +85,6 @@ jobs:
               type=ref,event=tag,prefix=latest-
               type=ref,event=pr,prefix=latest-
 
-          - name: "Stable"
-            target: "auto-stable"
-            tags: |
-              type=raw,value=stable,enable={{is_default_branch}}
-              type=raw,value=stable-{{date 'YYYYMMDD'}},enable={{is_default_branch}}
-              type=sha,format=short,prefix=stable-
-              type=ref,event=branch,prefix=stable-
-              type=ref,event=tag,prefix=stable-
-              type=ref,event=pr,prefix=stable-
-
     steps:
       - name: Free disk space
         id: free-disk-space
