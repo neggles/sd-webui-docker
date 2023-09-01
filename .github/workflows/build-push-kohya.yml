@@ -2,16 +2,16 @@ name: sd-scripts (bmaltais)
 run-name: sd-scripts (via ${{ github.event_name }})
 
 on:
-  push:
-    branches:
-      - "main"
-      - "kohya"
-    paths:
-      - "docker-bake.hcl"
-      - "docker/Dockerfile.base"
-      - "kohya/*"
-      - ".github/workflows/build-push-kohya.yml"
-      - "!**.md"
+  # push:
+  #   branches:
+  #     - "main"
+  #     - "kohya"
+  #   paths:
+  #     - "docker-bake.hcl"
+  #     - "docker/Dockerfile.base"
+  #     - "kohya/*"
+  #     - ".github/workflows/build-push-kohya.yml"
+  #     - "!**.md"
 
   workflow_dispatch:
     inputs:
@@ -21,13 +21,13 @@ on:
         required: true
         default: false
 
-  pull_request:
-    paths:
-      - "docker-bake.hcl"
-      - "docker/Dockerfile.base"
-      - "kohya/*"
-      - ".github/workflows/build-push-kohya.yml"
-      - "!**.md"
+  # pull_request:
+  #   paths:
+  #     - "docker-bake.hcl"
+  #     - "docker/Dockerfile.base"
+  #     - "kohya/*"
+  #     - ".github/workflows/build-push-kohya.yml"
+  #     - "!**.md"
 
 defaults:
   run:
