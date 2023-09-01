@@ -23,8 +23,7 @@ RUN rm -f /etc/apt/apt.conf.d/docker-clean \
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    apt-get -y update \
-    && apt-get -y upgrade
+    apt-get -y update
 
 # Install dependencies
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \

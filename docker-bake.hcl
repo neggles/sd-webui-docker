@@ -61,9 +61,9 @@ target "common" {
 
     TORCH_INDEX      = TORCH_INDEX
     TORCH_VERSION    = TORCH_VERSION
-    CUDNN_VERSION    = "8.8.1.3-1"
-    XFORMERS_VERSION = "0.0.17"
-    BNB_VERSION      = "0.38.1"
+    CUDNN_VERSION    = "8.9.3.28-1"
+    XFORMERS_VERSION = "0.0.21"
+    BNB_VERSION      = "0.41.1"
     TRITON_VERSION   = "2.0.0.post1"
     LION_VERSION     = "0.0.7"
   }
@@ -82,7 +82,7 @@ target "base" {
     CUDA_VERSION  = CUDA_VERSION
     CUDA_RELEASE  = "${regex_replace(CUDA_VERSION, "\\.", "-")}"
 
-    CUDNN_VERSION    = "8.8.1.3-1"
+    CUDNN_VERSION    = "8.9.3.28-1"
     TENSORRT_VERSION = ""
 
     TORCH_INDEX   = TORCH_INDEX
@@ -104,8 +104,8 @@ target "auto-edge" {
     SD_WEBUI_REF     = AUTO_EDGE_REF
     REQFILE_NAME     = "requirements_versions.txt"
 
-    TRITON_VERSION   = "2.0.0.post1"
-    XFORMERS_VERSION = "0.0.19"
+    TRITON_VERSION   = "2.1.0"
+    XFORMERS_VERSION = "0.0.21"
 
     STABLE_DIFFUSION_REF    = "cf1d67a6fd5ea1aa600c4df58e5b47da45f6bdbf"
     STABLE_DIFFUSION_XL_REF = "5c10deee76adad0032b412294130090932317a87"
@@ -136,8 +136,8 @@ target "auto-latest" {
     SD_WEBUI_REF     = AUTO_LATEST_REF
     REQFILE_NAME     = "requirements_versions.txt"
 
-    TRITON_VERSION   = "2.0.0.post1"
-    XFORMERS_VERSION = "0.0.19"
+    TRITON_VERSION   = "2.1.0"
+    XFORMERS_VERSION = "0.0.21"
 
     STABLE_DIFFUSION_REF    = "cf1d67a6fd5ea1aa600c4df58e5b47da45f6bdbf"
     TAMING_TRANSFORMERS_REF = "24268930bf1dce879235a7fddd0b2355b84d7ea6"
@@ -166,8 +166,8 @@ target "auto-stable" {
     SD_WEBUI_REF     = AUTO_STABLE_REF
     REQFILE_NAME     = "requirements_versions.txt"
 
-    TRITON_VERSION   = "2.0.0.post1"
-    XFORMERS_VERSION = "0.0.19"
+    TRITON_VERSION   = "2.1.0"
+    XFORMERS_VERSION = "0.0.21"
 
     STABLE_DIFFUSION_REF    = "47b6b607fdd31875c9279cd2f4f16b92e4ea958e"
     TAMING_TRANSFORMERS_REF = "24268930bf1dce879235a7fddd0b2355b84d7ea6"
@@ -196,8 +196,8 @@ target "vlad-latest" {
     SD_WEBUI_REF     = VLAD_LATEST_REF
     REQFILE_NAME     = "requirements.txt"
 
-    TRITON_VERSION   = "2.0.0.post1"
-    XFORMERS_VERSION = "0.0.19"
+    TRITON_VERSION   = "2.1.0"
+    XFORMERS_VERSION = "0.0.21"
 
     STABLE_DIFFUSION_REF    = "cf1d67a6fd5ea1aa600c4df58e5b47da45f6bdbf"
     TAMING_TRANSFORMERS_REF = "3ba01b241669f5ade541ce990f7650a3b8f65318"
