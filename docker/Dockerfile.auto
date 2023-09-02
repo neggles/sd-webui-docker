@@ -81,13 +81,8 @@ RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
   && cd ${ROOT_DIR} \
   && git reset --hard ${SD_WEBUI_REF}
 
-# Install xformers and triton
-ARG XFORMERS_VERSION
-ARG TRITON_VERSION
-RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
-  pip install --no-deps --pre \
-    xformers==${XFORMERS_VERSION} \
-    triton==${TRITON_VERSION}
+# copy the dep repos from the download stage
+COPY --from=download /git/* ${ROOT_DIR}/repositories/
 
 # Install requirements
 ARG REQFILE_NAME
@@ -139,6 +134,14 @@ RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
 RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
   pip install 'moviepy>=1.0.3' 'tqdm>=4.65.0' 'imageio-ffmpeg'
 
+# Install xformers and triton (we do this after the above to make sure we get the versions we want)
+ARG XFORMERS_VERSION
+ARG TRITON_VERSION
+RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
+  pip install --no-deps --pre \
+    xformers==${XFORMERS_VERSION} \
+    triton==${TRITON_VERSION}
+
 # Add the rest of the files
 COPY . /docker
 COPY ./entrypoint_auto.sh /docker/entrypoint.sh
@@ -151,6 +154,8 @@ WORKDIR ${ROOT_DIR}
 ENV CLI_ARGS=""
 ENV DATA_DIR=/data
 ENV WEBUI_PORT=7860
+ENV UID=1000
+ENV GID=1000
 
 EXPOSE ${WEBUI_PORT}
 ENTRYPOINT [ "/docker/entrypoint.sh" ]

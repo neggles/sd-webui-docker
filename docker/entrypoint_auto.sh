@@ -132,7 +132,8 @@ echo 'Copying scripts (if present): '
 cp -vrfTs "${config_dir}"/scripts/*.py "${repo_root}/scripts/" || true
 
 # Set git config so it won't warn and confuse the webui
-git config --global pull.ff only
+git config --system pull.rebase true
+git config --system rebase.autostash true
 
 # Run startup script if it exists
 if [ -f "${config_dir}/startup.sh" ]; then
