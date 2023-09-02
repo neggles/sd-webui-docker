@@ -89,6 +89,11 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
   apt-get update \
   && apt-get -y install --no-install-recommends \
     cuda-libraries-${CUDA_RELEASE} \
+    cuda-compiler=${CUDA_RELEASE} \
+    cuda-nvcc-${CUDA_RELEASE} \
+    libgl1 \
+    libgl-dev \
+    libglx-dev \
   && apt-get clean
 
 # Update pip and wheel, but *not* setuptools. debian setuptools has some
