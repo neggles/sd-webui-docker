@@ -9,7 +9,7 @@ services:
       dockerfile: Dockerfile
       target: webui
     environment:
-      CLI_ARGS: "--allow-code --enable-insecure-extension-access --api --xformers --opt-channelslast"
+      CLI_ARGS: "--skip-version-check --allow-code --enable-insecure-extension-access --api --xformers --opt-channelslast"
       # make TQDM behave a little better
       PYTHONUNBUFFERED: "1"
       TERM: "${TERM}"

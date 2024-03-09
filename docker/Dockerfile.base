@@ -101,12 +101,31 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
     python3 -m pip install -U pip wheel
 
-# Install PyTorch
-ARG TORCH_VERSION
-ARG TORCH_INDEX
-RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
-    python3 -m pip install torch==${TORCH_VERSION} torchvision --extra-index-url ${TORCH_INDEX}
-
 # add the nVidia python index
 RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
-    python3 -m pip install nvidia-pyindex
+    python -m pip install nvidia-pyindex
+
+# Install PyTorch
+ARG TORCH_INDEX
+ARG TORCH_PACKAGE="torch"
+ARG EXTRA_PIP_ARGS=" "
+RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
+    python -m pip install ${EXTRA_PIP_ARGS:-} \
+      "${TORCH_PACKAGE}" \
+      triton \
+      torchaudio \
+      torchvision \
+      --index-url "${TORCH_INDEX}"
+
+# save and enforce a constraint file to lock the torch and triton versions
+RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
+    python -m pip freeze | grep -E '(^torch|triton)' > /torch-constraints.txt \
+    && echo "-----------------------------" \
+    && echo "Created torch constraint file:" \
+    && cat /torch-constraints.txt \
+    && echo "-----------------------------"
+ENV PIP_CONSTRAINT=/torch-constraints.txt
+
+# we do a little entrypoint setup
+WORKDIR /workspace
+CMD ["/bin/bash", "-l"]

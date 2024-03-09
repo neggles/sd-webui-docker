@@ -49,7 +49,7 @@ concurrency:
 
 env:
   IMAGE_REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAMESPACE: ${{ github.repository }}
   IMAGE_PLATFORMS: "linux/amd64"
 
 jobs:
@@ -118,7 +118,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}
+            ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAMESPACE }}
           tags: ${{ matrix.tags }}
 
       - name: Build and Push Versioned Tags

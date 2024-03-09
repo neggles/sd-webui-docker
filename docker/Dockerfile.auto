@@ -13,37 +13,50 @@ SHELL [ "/bin/bash", "-ceuxo", "pipefail" ]
 # This isn't strictly necessary as it's set upstream, but it's here for clarity
 WORKDIR /git
 
-# Add clone script
-COPY --chown=root:root --chmod=0755 ./clone.sh /root/clone.sh
-
 # Clone repositories
 ARG STABLE_DIFFUSION_REF
-RUN mkdir -p stable-diffusion-stability-ai && \
-  /root/clone.sh stable-diffusion-stability-ai "https://github.com/Stability-AI/stablediffusion.git" "${STABLE_DIFFUSION_REF}" \
-  && cd stable-diffusion-stability-ai \
-  && rm -fr ./assets ./data/**/*.png ./data/**/*.jpg ./data/**/*.gif
-
-ARG TAMING_TRANSFORMERS_REF
-RUN mkdir -p taming-transformers && \
-  /root/clone.sh taming-transformers "https://github.com/CompVis/taming-transformers.git" "${TAMING_TRANSFORMERS_REF}" \
-  && cd taming-transformers \
-  && rm -fr data assets **/*.ipynb
-
-ARG CODEFORMER_REF
-RUN mkdir -p CodeFormer && \
-  /root/clone.sh CodeFormer https://github.com/sczhou/CodeFormer.git ${CODEFORMER_REF} \
-  && cd CodeFormer \
-  && rm -fr data assets **/*.ipynb
+RUN rm -fr "stable-diffusion-stability-ai" \
+    && git clone --recursive --depth=1 \
+        "https://github.com/Stability-AI/stablediffusion.git" "stable-diffusion-stability-ai" \
+    && cd "stable-diffusion-stability-ai" \
+    && git fetch origin "${STABLE_DIFFUSION_REF}" \
+    && git reset --hard FETCH_HEAD \
+    && rm -fr ./assets ./data/**/*.png ./data/**/*.jpg ./data/**/*.gif
 
 ARG BLIP_REF
-RUN /root/clone.sh BLIP https://github.com/salesforce/BLIP.git ${BLIP_REF}
+RUN rm -fr "BLIP" \
+    && git clone --recursive --depth=1 \
+        "https://github.com/salesforce/BLIP.git" "BLIP" \
+    && cd "BLIP" \
+    && git fetch origin "${BLIP_REF}" \
+    && git reset --hard FETCH_HEAD
 
 ARG K_DIFFUSION_REF
-RUN /root/clone.sh k-diffusion https://github.com/crowsonkb/k-diffusion.git ${K_DIFFUSION_REF}
+RUN rm -fr "k-diffusion" \
+    && git clone --recursive --depth=1 \
+        "https://github.com/crowsonkb/k-diffusion.git" "k-diffusion" \
+    && cd "k-diffusion" \
+    && git fetch origin "${K_DIFFUSION_REF}" \
+    && git reset --hard FETCH_HEAD
 
 ARG STABLE_DIFFUSION_XL_REF
-RUN mkdir -p generative-models && \
-  /root/clone.sh generative-models "https://github.com/Stability-AI/generative-models.git" "${STABLE_DIFFUSION_XL_REF}"
+RUN rm -fr "generative-models" \
+    && git clone --recursive --depth=1 \
+        "https://github.com/Stability-AI/generative-models.git" "generative-models" \
+    && cd "generative-models" \
+    && git fetch origin "${STABLE_DIFFUSION_XL_REF}" \
+    && git reset --hard FETCH_HEAD
+
+ARG SD_WEBUI_ASSETS_REF
+RUN rm -fr "stable-diffusion-webui-assets" \
+    && git clone --recursive --depth=1 \
+        "https://github.com/AUTOMATIC1111/stable-diffusion-webui-assets.git" "stable-diffusion-webui-assets" \
+    && cd "stable-diffusion-webui-assets" \
+    && git fetch origin "${SD_WEBUI_ASSETS_REF}" \
+    && git reset --hard FETCH_HEAD
+
+# print out the contents of the git directory for debugging
+RUN ls -l && sleep 5
 
 FROM base AS webui
 
@@ -51,7 +64,6 @@ FROM base AS webui
 ARG DEBIAN_FRONTEND
 ARG DEBIAN_PRIORITY
 ARG PIP_PREFER_BINARY
-ARG SD_WEBUI_VARIANT
 
 ENV LC_ALL=C.UTF-8
 ENV PYTHONUNBUFFERED=1
@@ -59,9 +71,6 @@ ENV PYTHONIOENCODING=utf-8
 
 # make pip STFU about being root
 ENV PIP_ROOT_USER_ACTION=ignore
-
-# variant for later use
-ENV SD_WEBUI_VARIANT=${SD_WEBUI_VARIANT}
 
 # CUDA-related
 ENV CUDA_MODULE_LOADING=LAZY
@@ -73,52 +82,46 @@ ENV NVIDIA_REQUIRE_CUDA="cuda>=11.8 driver>=450"
 # Where we should put everything
 ENV ROOT_DIR=/stable-diffusion-webui
 
+# Install GFPGAN, CLIP, OPENCLIP and pyngrok
+ARG CLIP_PKG_REF
+ARG OPENCLIP_PKG_REF
+RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
+    pip install \
+    pyngrok \
+    "git+https://github.com/openai/CLIP.git@${CLIP_PKG_REF}" \
+    "git+https://github.com/mlfoundations/open_clip.git@${OPENCLIP_PKG_REF}"
+
 # Clone actual repo
 ARG SD_WEBUI_REF
 ARG SD_WEBUI_REPO
 RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
-  git clone ${SD_WEBUI_REPO} ${ROOT_DIR} \
-  && cd ${ROOT_DIR} \
-  && git reset --hard ${SD_WEBUI_REF}
-
-# copy the dep repos from the download stage
-COPY --from=download /git/* ${ROOT_DIR}/repositories/
-
-# Install requirements
-ARG REQFILE_NAME
-RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
-  cd ${ROOT_DIR} \
-  && pip install -r ${REQFILE_NAME}
-
-# Install requirements for CodeFormer
-RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
-  pip install -r ${ROOT_DIR}/repositories/CodeFormer/requirements.txt
-
-# Install GFPGAN, CLIP, OPENCLIP and pyngrok
-ARG GFPGAN_PKG_REF
-ARG CLIP_PKG_REF
-ARG OPENCLIP_PKG_REF
-RUN pip install \
-  pyngrok \
-  "git+https://github.com/TencentARC/GFPGAN.git@${GFPGAN_PKG_REF}" \
-  "git+https://github.com/openai/CLIP.git@${CLIP_PKG_REF}" \
-  "git+https://github.com/mlfoundations/open_clip.git@${OPENCLIP_PKG_REF}"
+    git clone ${SD_WEBUI_REPO} ${ROOT_DIR} \
+    && cd ${ROOT_DIR} \
+    && git fetch origin ${SD_WEBUI_REF} \
+    && git reset --hard ${SD_WEBUI_REF}
+# set workdir
+WORKDIR ${ROOT_DIR}
 
 # fix an issue in A1111
 ENV LD_PRELOAD=libtcmalloc.so
-ENV TCMALLOC_AGGRESSIVE_DECOMMIT=1
+ENV TCMALLOC_AGGRESSIVE_DECOMMIT=t
 
 # Reupdate the repo to target hash and install deps
 RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
-  cd ${ROOT_DIR} \
-  && git fetch \
-  && git reset --hard ${SD_WEBUI_REF} \
-  && git submodule update --init --recursive \
-  && pip install -r ${REQFILE_NAME}
+    git fetch origin ${SD_WEBUI_REF} \
+    && git reset --hard ${SD_WEBUI_REF} \
+    && git submodule sync \
+    && git submodule update --init --recursive \
+    && pip install -r requirements_versions.txt
+
+# copy the dep repos from the download stage
+RUN --mount=type=bind,from=download,source=/git,target=/git \
+    mkdir -p ${ROOT_DIR}/repositories \
+    && cp -rp /git/* ${ROOT_DIR}/repositories/
 
 # Install extra packages needed for extensions
 RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
-  pip install \
+    pip install \
     accelerate \
     diffusers \
     ffmpeg-python \
@@ -132,15 +135,15 @@ RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
 
 # Install moviepy and up-to-date tqdm
 RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
-  pip install 'moviepy>=1.0.3' 'tqdm>=4.65.0' 'imageio-ffmpeg'
+    pip install 'moviepy>=1.0.3' 'tqdm>=4.65.0' 'imageio-ffmpeg'
 
-# Install xformers and triton (we do this after the above to make sure we get the versions we want)
-ARG XFORMERS_VERSION
-ARG TRITON_VERSION
+# Install xformers (we do this after the above to make sure we get the versions we want)
+# Install xformers
+ARG XFORMERS_PACKAGE="xformers"
+ARG XFORMERS_PIP_ARGS=""
 RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
-  pip install --no-deps --pre \
-    xformers==${XFORMERS_VERSION} \
-    triton==${TRITON_VERSION}
+    python -m pip install ${XFORMERS_PIP_ARGS} "${XFORMERS_PACKAGE}" \
+    || python -m pip install --pre ${XFORMERS_PIP_ARGS} "${XFORMERS_PACKAGE}"
 
 # Add the rest of the files
 COPY . /docker
@@ -159,4 +162,4 @@ ENV GID=1000
 
 EXPOSE ${WEBUI_PORT}
 ENTRYPOINT [ "/docker/entrypoint.sh" ]
-CMD python -u webui.py --listen --port ${WEBUI_PORT} ${CLI_ARGS}
+CMD python -u webui.py --listen --port ${WEBUI_PORT} --skip-version-check ${CLI_ARGS}

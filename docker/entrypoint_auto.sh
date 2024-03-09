@@ -129,7 +129,7 @@ done
 
 # Copy scripts individually to avoid purging the directory
 echo 'Copying scripts (if present): '
-cp -vrfTs "${config_dir}"/scripts/*.py "${repo_root}/scripts/" || true
+cp -vr ${config_dir}/scripts/*.py "${repo_root}/scripts/" || true
 
 # Set git config so it won't warn and confuse the webui
 git config --system pull.rebase true
