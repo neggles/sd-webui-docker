@@ -57,11 +57,20 @@ function torchSpec {
 
 # build a tag for an image from this repo
 function repoImage {
-  params          = [imageName]
+  params          = [imageTag]
   variadic_params = extraVals
   result = join(":", [
     join("/", [IMAGE_REGISTRY, IMAGE_NAMESPACE]),
-    join("-", concat([imageName], extraVals))
+    join("-", concat([imageTag], extraVals))
+  ])
+}
+# sub-image, REGISTRY/NAMESPACE/subimagename:
+function subImage {
+  params          = [subImageName, imageTag]
+  variadic_params = extraVals
+  result = join(":", [
+    join("/", [IMAGE_REGISTRY, IMAGE_NAMESPACE, subImageName]),
+    join("-", concat([imageTag], extraVals))
   ])
 }
 
@@ -170,4 +179,14 @@ target "local-dev" {
     repoImage("edge"),
   ]
   args = {}
+}
+
+target "browser" {
+  inherits   = ["common", "docker-metadata-action"]
+  context    = "./browser"
+  dockerfile = "Dockerfile"
+  target     = "browser"
+  tags = [
+    subImage("browser", "latest"),
+  ]
 }

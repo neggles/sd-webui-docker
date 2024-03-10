@@ -26,3 +26,27 @@ services:
         source: ./output
         target: /output
 
+  browser:
+    image: ghcr.io/neggles/sd-webui-docker/browser:latest
+    restart: unless-stopped
+    container_name: sd-browser
+    profiles:
+      - "browser"
+    build:
+      context: ./browser
+      dockerfile: Dockerfile
+      target: browser
+    environment:
+      BROWSER_PORT: 7869
+    ports:
+      - mode: ingress
+        target: 7869
+        published: 7869
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: ./data
+        target: /data
+      - type: bind
+        source: ./output
+        target: /output
