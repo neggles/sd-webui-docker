@@ -91,7 +91,9 @@ declare -A file_map
 # add files to file_map
 file_map["${repo_root}/config.json"]="${config_dir}/config.json"
 file_map["${repo_root}/ui-config.json"]="${config_dir}/ui-config.json"
+file_map["${repo_root}/cache.json"]="${config_dir}/cache.json"
 file_map["${repo_root}/user.css"]="${config_dir}/user.css"
+file_map["${repo_root}/params.txt"]="${config_dir}/params.txt"
 
 # copy default config.json if there isn't one
 if [ ! -f "${config_dir}/config.json" ]; then
@@ -101,10 +103,19 @@ fi
 if [ ! -f "${config_dir}/ui-config.json" ]; then
     echo '{}' > "${config_dir}/ui-config.json"
 fi
+# create empty cache.json if none present
+if [ ! -f "${config_dir}/cache.json" ]; then
+    echo '{}' > "${config_dir}/cache.json"
+fi
 # create empty user.css if none provided
 if [ ! -f "${config_dir}/user.css" ]; then
     echo '' > "${config_dir}/user.css"
 fi
+# create empty params.txt if none provided
+if [ ! -f "${config_dir}/params.txt" ]; then
+    echo '' > "${config_dir}/params.txt"
+fi
+
 
 # merge system config.json with default config.json
 jq '. * input' "${config_dir}/config.json" "/docker/config.json" \
