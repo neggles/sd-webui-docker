@@ -147,7 +147,7 @@ RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
 
 # Add the rest of the files
 COPY . /docker
-COPY ./entrypoint_auto.sh /docker/entrypoint.sh
+COPY ./entrypoint.sh /docker/entrypoint.sh
 
 # Commit high treason
 RUN sed -i 's/in_app_dir = .*/in_app_dir = True/g' /usr/local/lib/python3.10/site-packages/gradio/routes.py
