@@ -77,7 +77,8 @@ ENV CUDA_MODULE_LOADING=LAZY
 ENV TORCH_ALLOW_TF32_CUBLAS_OVERRIDE=1
 ENV PYTORCH_CUDA_ALLOC_CONF="garbage_collection_threshold:0.9,max_split_size_mb:512"
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility,graphics
-ENV NVIDIA_REQUIRE_CUDA="cuda>=11.8 driver>=450"
+ENV NVIDIA_REQUIRE_CUDA="cuda>=12.1 driver>=500"
+ENV TCMALLOC_AGGRESSIVE_DECOMMIT=t
 
 # Where we should put everything
 ENV ROOT_DIR=/stable-diffusion-webui
@@ -98,21 +99,16 @@ RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
     git clone ${SD_WEBUI_REPO} ${ROOT_DIR} \
     && cd ${ROOT_DIR} \
     && git fetch origin ${SD_WEBUI_REF} \
-    && git reset --hard ${SD_WEBUI_REF}
+    && git reset --hard FETCH_HEAD \
+    && git submodule sync \
+    && git submodule update --init --recursive
+
 # set workdir
 WORKDIR ${ROOT_DIR}
 
-# fix an issue in A1111
-ENV LD_PRELOAD=libtcmalloc.so
-ENV TCMALLOC_AGGRESSIVE_DECOMMIT=t
-
 # Reupdate the repo to target hash and install deps
 RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
-    git fetch origin ${SD_WEBUI_REF} \
-    && git reset --hard ${SD_WEBUI_REF} \
-    && git submodule sync \
-    && git submodule update --init --recursive \
-    && pip install -r requirements_versions.txt
+    pip install -r requirements_versions.txt
 
 # copy the dep repos from the download stage
 RUN --mount=type=bind,from=download,source=/git,target=/git \
