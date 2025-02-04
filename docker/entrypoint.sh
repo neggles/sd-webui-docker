@@ -40,27 +40,8 @@ else
 fi
 
 # add other paths to path_map
+config_dir="${data_dir}/config/auto"
 path_map["${repo_root}/embeddings"]="${data_dir}/embeddings"
-
-if [[ "${SD_WEBUI_VARIANT}" == "vlad" ]]; then
-    echo "Running vladmandic webui variant"
-    config_dir="${data_dir}/config/vlad"
-    if [[ ! -d ${config_dir} ]]; then
-        echo "vlad config folder not found, creating..."
-        mkdir -p "${config_dir}"
-        if [[ -d "${data_dir}/config/auto" ]]; then
-            echo "Found existing AUTOMATIC1111 config, copying to vlad config"
-            cp -au "${data_dir}/config/auto" "${data_dir}/config/vlad"
-            echo "Purgeing extensions from vlad config (most are built-in and copying breaks them)"
-            rm -fr "${data_dir}/config/vlad/extensions"
-        fi
-        echo "Configuration ready."
-    fi
-else
-    echo "Running AUTOMATIC1111 webui variant"
-    config_dir="${data_dir}/config/auto"
-fi
-
 path_map["${repo_root}/.vscode"]="${config_dir}/.vscode"
 path_map["${repo_root}/extensions"]="${config_dir}/extensions"
 path_map["${repo_root}/config_states"]="${config_dir}/config_states"
